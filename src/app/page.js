@@ -6,8 +6,8 @@ import { Chat } from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
 
 const personalities = {
-  intellectual: "안녕? 나는 엘리엇이야. 오늘은 어떤 지적인 이야기를 나눌까?",
-  funny: "안녕? 나는 엘리엇이야. 오늘은 무슨 재미난 일이 있었니?",
+  intellectual: "안녕? 나는 안경척!이야. 오늘은 어떤 지적인 이야기를 나눌까?",
+  funny: "안녕? 나는 덕메야. 오늘은 무슨 재미난 일이 있었니?",
 };
 
 const apiUrls = {
@@ -58,7 +58,7 @@ export default function Home() {
     if (personality) {
       setMessages([
         {
-          role: "model",
+          role: "assistant",
           parts: [{ text: personalities[personality] }],
         },
       ]);
@@ -166,4 +166,3 @@ export default function Home() {
     </>
   );
 }
-
