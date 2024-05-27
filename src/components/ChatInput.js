@@ -32,8 +32,10 @@ export const ChatInput = ({ onSendMessage }) => {
   // 엔터키를 누르면 전송 버튼을 누른 것과 동일한 효과를 낸다
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+        if (e.nativeEvent.isComposing === false) {
+            e.preventDefault();
+            handleSend();
+        }
     }
   };
 
