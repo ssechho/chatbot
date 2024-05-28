@@ -68,13 +68,9 @@ export default function Home() {
   };
 
   const handleNewConversation = () => {
-    const newConversation = {
-      title: "New Conversation",
-      messages: [],
-    };
-    setConversations([...conversations, newConversation]);
-    setCurrentConversation(conversations.length);
-    handleReset();
+    setPersonality(null);
+    setCurrentConversation(null);
+    setMessages([]);
   };
 
   const handleSelectConversation = (index) => {
@@ -84,6 +80,14 @@ export default function Home() {
 
   const handleSetPersonality = (selectedPersonality) => {
     setPersonality(selectedPersonality);
+    const newConversation = {
+      title: `New Conversation (${selectedPersonality})`,
+      messages: [],
+      mode: selectedPersonality,
+    };
+    const newConversations = [...conversations, newConversation];
+    setConversations(newConversations);
+    setCurrentConversation(newConversations.length - 1);
     handleReset();
   };
 
@@ -116,7 +120,6 @@ export default function Home() {
         <Sidebar
           conversations={conversations}
           onSelectConversation={handleSelectConversation}
-          onSetPersonality={handleSetPersonality}
         />
         <div className="flex-1 flex flex-col">
           <div className="flex h-[50px] sm:h-[60px] border-b border-neutral-300 py-2 px-2 sm:px-8 items-center justify-between">
@@ -131,7 +134,7 @@ export default function Home() {
             <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
               {personality === null ? (
                 <div className="flex flex-col items-center">
-                  <h2 className="text-2xl font-bold mb-4">Set Personality</h2>
+                  <h2 className="text-2xl font-bold mb-4">Start New Conversation</h2>
                   <button
                     className="btn btn-primary mb-2"
                     onClick={() => handleSetPersonality('intellectual')}
@@ -156,13 +159,17 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex h-[30px] sm:h-[50px] border-t border-neutral-300 py-2 px-8 items-center sm:justify-between justify-center">
-            <button onClick={handleNewConversation} className="btn btn-primary">
-              New Conversation
-            </button>
-          </div>
+          {personality !== null && (
+            <div className="flex h-[30px] sm:h-[50px] border-t border-neutral-300 py-2 px-8 items-center sm:justify-between justify-center">
+              <button onClick={handleNewConversation} className="btn btn-primary">
+                New Conversation
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
   );
 }
+
+
