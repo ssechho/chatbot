@@ -42,9 +42,17 @@ const profileImages = {
 };
 
 export const getProfileImage = (index, defaultProfile, mode) => {
+  const defaultImageSet = profileImages[`${mode}_default`];
   if (index === 0) {
-    return profileImages[`${mode}_default`][defaultProfile];
+    if (defaultImageSet && defaultImageSet[defaultProfile]) {
+      return defaultImageSet[defaultProfile];
+    } else {
+      return "/images/default_profile.png"; // 기본 이미지가 없을 경우 대비
+    }
   }
   const profileOptions = profileImages[mode];
-  return profileOptions[(index - 1) % profileOptions.length];
+  if (profileOptions) {
+    return profileOptions[(index - 1) % profileOptions.length];
+  }
+  return "/images/default_profile.png"; // 기본 이미지가 없을 경우 대비
 };

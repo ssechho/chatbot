@@ -148,20 +148,30 @@ export default function Home() {
                       <img
                         src="/images/profile_intellectual/boy_0.png"
                         alt="boy"
+                        className="w-10 h-10"
                       />
                       안경 척! 모드
                       <img
                         src="/images/profile_intellectual/girl_0.png"
                         alt="girl"
+                        className="w-10 h-10"
                       />
                     </button>
                     <button
                       className="btn btn-funny"
                       onClick={() => handleSetPersonality("funny")}
                     >
-                      <img src="/images/profile_funny/boy_5.png" alt="boy" />
+                      <img
+                        src="/images/profile_funny/boy_5.png"
+                        alt="boy"
+                        className="w-10 h-10"
+                      />
                       주접이 모드
-                      <img src="/images/profile_funny/girl_5.png" alt="girl" />
+                      <img
+                        src="/images/profile_funny/girl_5.png"
+                        alt="girl"
+                        className="w-10 h-10"
+                      />
                     </button>
                   </div>
                 </div>
@@ -170,6 +180,7 @@ export default function Home() {
                   messages={messages}
                   loading={loading}
                   onSendMessage={handleSend}
+                  mode={personality} // mode를 전달합니다
                 />
               )}
               <div ref={messagesEndRef} />
