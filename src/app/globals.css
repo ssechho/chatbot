@@ -22,6 +22,9 @@ body {
 }
 
 .btn img {
-  @apply w-10 h-10;
-  height: 40px; /* Explicitly set height for uniformity */
+  @apply w-20 h-20; /* 사용자 정의 크기 */
+}
+
+.profile-image {
+  @apply w-20 h-20 rounded-full mr-2; /* 사용자 정의 크기 */
 }

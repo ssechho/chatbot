@@ -148,13 +148,13 @@ export default function Home() {
                       <img
                         src="/images/profile_intellectual/boy_0.png"
                         alt="boy"
-                        className="w-10 h-10"
+                        className="w-15 h-15"
                       />
                       안경 척! 모드
                       <img
                         src="/images/profile_intellectual/girl_0.png"
                         alt="girl"
-                        className="w-10 h-10"
+                        className="w-15 h-15"
                       />
                     </button>
                     <button
@@ -164,13 +164,13 @@ export default function Home() {
                       <img
                         src="/images/profile_funny/boy_5.png"
                         alt="boy"
-                        className="w-10 h-10"
+                        className="w-15 h-15"
                       />
                       주접이 모드
                       <img
                         src="/images/profile_funny/girl_5.png"
                         alt="girl"
-                        className="w-10 h-10"
+                        className="w-15 h-15"
                       />
                     </button>
                   </div>

@@ -30,7 +30,7 @@ export const Chat = ({ messages, loading, onSendMessage, mode }) => {
             <img
               src={getProfileImage(index, defaultProfile, mode)}
               alt="profile"
-              className="profile-image w-10 h-10 rounded-full mr-2"
+              className="profile-image"
             />
           )}
           <ChatBubble message={message} />
