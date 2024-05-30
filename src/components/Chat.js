@@ -9,7 +9,7 @@ export const Chat = ({ messages, loading, onSendMessage, mode }) => {
 
   useEffect(() => {
     // 초기 기본 프로필 설정
-    const initialProfile = Math.random() > 0.5 ? "boy_default" : "girl_default";
+    const initialProfile = Math.random() > 0.5 ? "boy" : "girl";
     setDefaultProfile(initialProfile);
   }, []);
 
