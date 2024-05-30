@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Global Styles */
+body {
+  @apply bg-gray-100 text-gray-900;
+}
+
+/* Button Styles */
+.btn {
+  @apply py-4 px-8 rounded-lg flex items-center justify-center gap-6 font-bold text-lg;
+  height: auto; /* Ensure height is flexible */
+}
+
+.btn-intellectual {
+  @apply bg-green-500 text-white hover:bg-green-700;
+}
+
+.btn-funny {
+  @apply bg-red-500 text-white hover:bg-red-700;
+}
+
+.btn img {
+  @apply w-10 h-10;
+  height: 40px; /* Explicitly set height for uniformity */
+}

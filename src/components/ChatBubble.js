@@ -1,10 +1,9 @@
 export const ChatBubble = ({ message }) => {
   return (
     <div
-      className={`flex flex-col ${
-        /* message.role 이 assistant 인 경우 좌측 정렬, 그 외에는 우측 정렬 */
-        message.role === "assistant" ? "items-start" : "items-end"
-      }`}
+      className={`flex ${
+        message.role === "assistant" ? "justify-start" : "justify-end"
+      } w-full`}
     >
       <div
         className={`flex items-center ${

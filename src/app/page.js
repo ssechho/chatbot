@@ -12,7 +12,7 @@ const personalities = {
 
 const apiUrls = {
   intellectual: "/api/intellectual",
-  funny: "/api/funny"
+  funny: "/api/funny",
 };
 
 export default function Home() {
@@ -121,10 +121,13 @@ export default function Home() {
           conversations={conversations}
           onSelectConversation={handleSelectConversation}
         />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col bg-white shadow rounded-lg">
           <div className="flex h-[50px] sm:h-[60px] border-b border-neutral-300 py-2 px-2 sm:px-8 items-center justify-between">
             <div className="font-bold text-3xl flex text-center">
-              <a className="ml-2 hover:opacity-50" href="https://code-scaffold.vercel.app">
+              <a
+                className="ml-2 hover:opacity-50"
+                href="https://code-scaffold.vercel.app"
+              >
                 AI동진
               </a>
             </div>
@@ -134,19 +137,33 @@ export default function Home() {
             <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
               {personality === null ? (
                 <div className="flex flex-col items-center">
-                  <h2 className="text-2xl font-bold mb-4">Start New Conversation</h2>
-                  <button
-                    className="btn btn-primary mb-2"
-                    onClick={() => handleSetPersonality('intellectual')}
-                  >
-                    안경 척! 모드
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => handleSetPersonality('funny')}
-                  >
-                    주접이 모드
-                  </button>
+                  <h2 className="text-2xl font-bold mb-4">
+                    Start New Conversation
+                  </h2>
+                  <div className="flex space-x-4">
+                    <button
+                      className="btn btn-intellectual mb-2"
+                      onClick={() => handleSetPersonality("intellectual")}
+                    >
+                      <img
+                        src="/images/profile_intellectual/boy_0.png"
+                        alt="boy"
+                      />
+                      안경 척! 모드
+                      <img
+                        src="/images/profile_intellectual/girl_0.png"
+                        alt="girl"
+                      />
+                    </button>
+                    <button
+                      className="btn btn-funny"
+                      onClick={() => handleSetPersonality("funny")}
+                    >
+                      <img src="/images/profile_funny/boy_5.png" alt="boy" />
+                      주접이 모드
+                      <img src="/images/profile_funny/girl_5.png" alt="girl" />
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <Chat
@@ -161,7 +178,10 @@ export default function Home() {
 
           {personality !== null && (
             <div className="flex h-[30px] sm:h-[50px] border-t border-neutral-300 py-2 px-8 items-center sm:justify-between justify-center">
-              <button onClick={handleNewConversation} className="btn btn-primary">
+              <button
+                onClick={handleNewConversation}
+                className="btn btn-primary"
+              >
                 New Conversation
               </button>
             </div>
@@ -171,5 +191,3 @@ export default function Home() {
     </>
   );
 }
-
-
