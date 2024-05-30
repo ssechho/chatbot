@@ -4,6 +4,7 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
+import { getProfileImage } from "../utils/profileImageHelper";
 
 const personalities = {
   intellectual: "안녕? 나는 안경척!이야. 오늘은 어떤 지적인 이야기를 나눌까?",
@@ -21,6 +22,7 @@ export default function Home() {
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [personality, setPersonality] = useState(null);
+  const [defaultProfile, setDefaultProfile] = useState("");
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -28,38 +30,51 @@ export default function Home() {
   };
 
   const handleSend = async (message) => {
-    const updatedMessages = [...messages, message];
+    const profileImage = getProfileImage(
+      messages.length,
+      defaultProfile,
+      personality
+    );
+    const updatedMessages = [...messages, { ...message, profileImage }];
     setMessages(updatedMessages);
     setLoading(true);
 
-    const response = await fetch(apiUrls[personality], {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ messages: updatedMessages.slice(1) }),
-    });
+    try {
+      const response = await fetch(apiUrls[personality], {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages: updatedMessages.slice(1) }),
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        setLoading(false);
+        console.error("Response not OK:", response);
+        throw new Error(response.statusText);
+      }
+
+      const result = await response.json();
+      if (!result) {
+        return;
+      }
+
       setLoading(false);
-      throw new Error(response.statusText);
+      setMessages((messages) => [...messages, { ...result, profileImage }]);
+    } catch (error) {
+      setLoading(false);
+      console.error("Error sending message:", error);
     }
-
-    const result = await response.json();
-    if (!result) {
-      return;
-    }
-
-    setLoading(false);
-    setMessages((messages) => [...messages, result]);
   };
 
   const handleReset = () => {
     if (personality) {
+      const profileImage = getProfileImage(0, defaultProfile, personality);
       setMessages([
         {
           role: "assistant",
           parts: [{ text: personalities[personality] }],
+          profileImage: profileImage,
         },
       ]);
     } else {
@@ -80,6 +95,9 @@ export default function Home() {
 
   const handleSetPersonality = (selectedPersonality) => {
     setPersonality(selectedPersonality);
+    const initialProfile = Math.random() > 0.5 ? "boy" : "girl";
+    setDefaultProfile(initialProfile);
+
     const newConversation = {
       title: `New Conversation (${selectedPersonality})`,
       messages: [],
@@ -148,13 +166,13 @@ export default function Home() {
                       <img
                         src="/images/profile_intellectual/boy_0.png"
                         alt="boy"
-                        className="w-15 h-15"
+                        className="w-20 h-20"
                       />
                       안경 척! 모드
                       <img
                         src="/images/profile_intellectual/girl_0.png"
                         alt="girl"
-                        className="w-15 h-15"
+                        className="w-20 h-20"
                       />
                     </button>
                     <button
@@ -164,13 +182,13 @@ export default function Home() {
                       <img
                         src="/images/profile_funny/boy_5.png"
                         alt="boy"
-                        className="w-15 h-15"
+                        className="w-20 h-20"
                       />
                       주접이 모드
                       <img
                         src="/images/profile_funny/girl_5.png"
                         alt="girl"
-                        className="w-15 h-15"
+                        className="w-20 h-20"
                       />
                     </button>
                   </div>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { ChatInput } from "./ChatInput";
 import { ChatLoader } from "./ChatLoader";
 import { ChatBubble } from "./ChatBubble";
-import { getProfileImage } from "../utils/profileImageHelper"; // 프로필 이미지 헬퍼 함수
 
 export const Chat = ({ messages, loading, onSendMessage, mode }) => {
   const [defaultProfile, setDefaultProfile] = useState("");
@@ -13,10 +12,6 @@ export const Chat = ({ messages, loading, onSendMessage, mode }) => {
     setDefaultProfile(initialProfile);
   }, []);
 
-  if (!mode) {
-    return <div>Error: mode is not defined</div>; // mode가 정의되지 않았을 경우 에러 메시지
-  }
-
   return (
     <div className="chat-container flex flex-col rounded-lg px-2 sm:p-4 sm:border border-neutral-300">
       {messages.map((message, index) => (
@@ -26,9 +21,9 @@ export const Chat = ({ messages, loading, onSendMessage, mode }) => {
             message.role === "assistant" ? "items-start" : "items-end"
           }`}
         >
-          {message.role === "assistant" && (
+          {message.role === "assistant" && message.profileImage && (
             <img
-              src={getProfileImage(index, defaultProfile, mode)}
+              src={message.profileImage}
               alt="profile"
               className="profile-image"
             />
