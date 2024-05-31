@@ -80,8 +80,17 @@ export default function Home() {
 
   const handleSetPersonality = (selectedPersonality) => {
     setPersonality(selectedPersonality);
+    const now = new Date();
+    const timestamp = now.toLocaleString("ko-KR", {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
     const newConversation = {
-      title: `New Conversation (${selectedPersonality})`,
+      title: timestamp,
       messages: [],
       mode: selectedPersonality,
     };
