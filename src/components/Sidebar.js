@@ -5,11 +5,11 @@ const Sidebar = ({ conversations, onSelectConversation }) => {
     <div className="w-1/4 h-screen bg-gray-100 p-4">
       <h2 className="text-2xl font-bold mb-4">Conversations</h2>
       <ul>
-        {conversations.map((conversation, index) => (
+        {conversations.map((conversation) => (
           <li
-            key={index}
+            key={conversation.id}
             className="p-2 cursor-pointer hover:bg-gray-200"
-            onClick={() => onSelectConversation(index)}
+            onClick={() => onSelectConversation(conversation.id)}
           >
             {conversation.title}
           </li>
@@ -20,7 +20,6 @@ const Sidebar = ({ conversations, onSelectConversation }) => {
 };
 
 export default Sidebar;
-
 
 
 
