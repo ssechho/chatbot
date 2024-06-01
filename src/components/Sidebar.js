@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const Sidebar = ({ conversations, onSelectConversation }) => {
   return (
@@ -11,7 +11,9 @@ const Sidebar = ({ conversations, onSelectConversation }) => {
             className="p-2 cursor-pointer hover:bg-gray-200"
             onClick={() => onSelectConversation(index)}
           >
-            {conversation.title}
+            {conversation.summary
+              ? conversation.summary
+              : conversation.createdAt}
           </li>
         ))}
       </ul>
@@ -20,7 +22,3 @@ const Sidebar = ({ conversations, onSelectConversation }) => {
 };
 
 export default Sidebar;
-
-
-
-
