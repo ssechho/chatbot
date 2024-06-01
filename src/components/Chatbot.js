@@ -14,6 +14,7 @@ import {
   getDoc,
   addDoc,
   updateDoc,
+  deleteDoc,
   where
 } from "firebase/firestore";
 
@@ -68,14 +69,14 @@ const Chatbot = () => {
   const [currentConversation, setCurrentConversation] = useState(null);
   const [personality, setPersonality] = useState(null);
   const messagesEndRef = useRef(null);
-  
+
   const { data: session } = useSession({
     required: true,
     onUnauthenticated() {
       router.replace("/login");
     },
   });
-  
+
   useEffect(() => {
     console.log("session data", session);
     loadConversations();
@@ -123,16 +124,16 @@ const Chatbot = () => {
 
     setLoading(false);
     setMessages((messages) => [...messages, result]);
-    
+
     // Firebase에 대화 내용 저장
     if (currentConversation !== null) {
-        const conversationRef = doc(db, "conversations", currentConversation);
-        await updateDoc(conversationRef, {
-            messages: [...updatedMessages, result],
-        });
+      const conversationRef = doc(db, "conversations", currentConversation);
+      await updateDoc(conversationRef, {
+        messages: [...updatedMessages, result],
+      });
     }
   };
-    
+
   const handleReset = () => {
     if (personality) {
       setMessages([
@@ -145,13 +146,13 @@ const Chatbot = () => {
       setMessages([]);
     }
   };
-    
+
   const handleNewConversation = async () => {
     setPersonality(null);
     setCurrentConversation(null);
     setMessages([]);
   };
-    
+
   const handleSelectConversation = async (conversationId) => {
     setLoading(true);
     const conversationRef = doc(db, "conversations", conversationId);
@@ -166,7 +167,7 @@ const Chatbot = () => {
       setLoading(false);
     }
   };
-    
+
   const handleSetPersonality = async (selectedPersonality) => {
     setPersonality(selectedPersonality);
     const now = new Date();
@@ -195,24 +196,42 @@ const Chatbot = () => {
     setCurrentConversation(docRef.id);
     setMessages(newConversation.messages); // 새로운 대화 시작 시 초기 메시지 설정
   };
-    
+
+  const deleteConversation = async (conversationId) => {
+    try {
+      // Firebase에서 대화 삭제
+      await deleteDoc(doc(db, "conversations", conversationId));
+
+      // 로컬 상태에서 대화 삭제
+      setConversations(conversations.filter(conversation => conversation.id !== conversationId));
+
+      // 현재 선택된 대화가 삭제된 경우 초기화
+      if (currentConversation === conversationId) {
+        setCurrentConversation(null);
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error("Error deleting conversation:", error);
+    }
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-    
+
   useEffect(() => {
     handleReset();
   }, [personality]);
-    
+
   useEffect(() => {
     if (currentConversation !== null) {
-      const updatedConversations = conversations.map(conversation => 
+      const updatedConversations = conversations.map(conversation =>
         conversation.id === currentConversation ? { ...conversation, messages } : conversation
       );
       setConversations(updatedConversations);
     }
   }, [messages]);
-    
+
   return (
     <>
       <Head>
@@ -221,11 +240,12 @@ const Chatbot = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-    
+
       <div className="flex h-screen">
         <Sidebar
           conversations={conversations}
           onSelectConversation={handleSelectConversation}
+          onDeleteConversation={deleteConversation} // 추가된 부분
         />
         <div className="flex-1 flex flex-col bg-white shadow rounded-lg">
           <div className="flex h-[50px] sm:h-[60px] border-b border-neutral-300 py-2 px-2 sm:px-8 items-center justify-between">
@@ -235,7 +255,6 @@ const Chatbot = () => {
             </div>
             <RealtimeSearch />
           </div>
-    
           <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
             <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
               {personality === null ? (
@@ -289,7 +308,7 @@ const Chatbot = () => {
               <div ref={messagesEndRef} />
             </div>
           </div>
-    
+
           {personality !== null && (
             <div className="flex h-[30px] sm:h-[50px] border-t border-neutral-300 py-2 px-8 items-center sm:justify-between justify-center">
               <button
@@ -305,12 +324,5 @@ const Chatbot = () => {
     </>
   );
 };
-    
+
 export default Chatbot;
-
-
-
-
-
-
-    
