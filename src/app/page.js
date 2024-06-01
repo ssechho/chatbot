@@ -189,7 +189,7 @@ export default function Home() {
                   </h2>
                   <div className="flex space-x-4">
                     <button
-                      className="btn btn-intellectual mb-2"
+                      className="btn btn-intellectual"
                       onClick={() => handleSetPersonality("intellectual")}
                     >
                       <img
