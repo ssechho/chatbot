@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-const Sidebar = ({ conversations, onSelectConversation }) => {
+const Sidebar = ({ conversations, onSelectConversation, onDeleteConversation }) => {
+  useEffect(() => {
+    localStorage.setItem('conversations', JSON.stringify(conversations));
+  }, [conversations]);
+
   return (
     <div className="w-1/4 h-screen bg-gray-100 p-4">
       <h2 className="text-2xl font-bold mb-4">Conversations</h2>
       <ul>
-        {conversations.map((conversation) => (
+        {conversations.map((conversation, index) => (
           <li
-            key={conversation.id}
-            className="p-2 cursor-pointer hover:bg-gray-200"
-            onClick={() => onSelectConversation(conversation.id)}
+            key={index}
+            className="p-2 flex justify-between items-center cursor-pointer hover:bg-gray-200"
+            onClick={() => onSelectConversation(conversation.id)} // ID를 전달
           >
-            {conversation.title}
+            <span>{conversation.title}</span>
           </li>
         ))}
       </ul>
@@ -20,6 +24,12 @@ const Sidebar = ({ conversations, onSelectConversation }) => {
 };
 
 export default Sidebar;
+
+
+
+
+
+
 
 
 
