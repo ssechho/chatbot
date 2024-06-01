@@ -250,7 +250,7 @@ const Chatbot = () => {
         <div className="flex-1 flex flex-col bg-white shadow rounded-lg">
           <div className="flex h-[50px] sm:h-[60px] border-b border-neutral-300 py-2 px-2 sm:px-8 items-center justify-between">
             <div className="font-bold text-3xl flex text-center">
-              <a className="ml-2 hover:opacity-50">Chatflix</a>
+              <Link href="/login" className="ml-2 hover:opacity-50">Chatflix</Link>
               <Link href="/library" className="ml-4 hover:opacity-50"> 라이브러리 </Link>
             </div>
             <RealtimeSearch />
