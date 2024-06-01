@@ -4,6 +4,7 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
+import Link from 'next/link';
 
 const personalities = {
   intellectual: "안녕? 나는 안경척!이야. 오늘은 어떤 지적인 이야기를 나눌까?",
@@ -14,6 +15,41 @@ const apiUrls = {
   intellectual: "/api/intellectual",
   funny: "/api/funny",
 };
+
+
+const RealtimeSearch = () => {
+  const [index, setIndex] = useState(0);
+  const items = Array.from({ length: 10 }, (_, i) => `검색어 ${i + 1}`);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prevIndex) => (prevIndex + 1) % items.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [items.length]);
+
+  return (
+    <div className="relative inline-block ml-auto">
+      <div className="realtime-search-container">
+        <div className="realtime-search">
+          {items.map((item, idx) => (
+            <div key={idx} className={`item ${index === idx ? 'active' : ''}`}>
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="realtime-search-hover">
+        <ul>
+          {items.map((item, idx) => (
+            <li key={idx}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
@@ -113,6 +149,7 @@ export default function Home() {
       const updatedConversations = [...conversations];
       updatedConversations[currentConversation].messages = messages;
       setConversations(updatedConversations);
+      localStorage.setItem('conversations', JSON.stringify(updatedConversations)); // 로컬 스토리지에 저장
     }
   }, [messages]);
 
@@ -135,11 +172,12 @@ export default function Home() {
             <div className="font-bold text-3xl flex text-center">
               <a
                 className="ml-2 hover:opacity-50"
-                href="https://code-scaffold.vercel.app"
               >
-                AI동진
+                Chatflix
               </a>
+              <Link href="/library" className="ml-4 hover:opacity-50"> 라이브러리 </Link>
             </div>
+            <RealtimeSearch /> {/* 실시간 검색어 컴포넌트 추가 */}
           </div>
 
           <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
@@ -211,3 +249,4 @@ export default function Home() {
     </>
   );
 }
+

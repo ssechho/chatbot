@@ -28,3 +28,59 @@ body {
 .profile-image {
   @apply w-20 h-20 rounded-full mr-2; /* 사용자 정의 크기 */
 }
+
+/* Realtime Search Styles */
+.realtime-search-container {
+  height: 20px;
+  overflow: hidden;
+  position: relative;
+  width: 100px;
+}
+
+.realtime-search {
+  position: absolute;
+  top: 0;
+  transition: transform 1s ease-in-out;
+}
+
+.realtime-search .item {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #f9f9f9;
+}
+
+.realtime-search-hover {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 120px; /* Adjust width as needed */
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.relative:hover .realtime-search-hover {
+  display: block;
+}
+
+.realtime-search-hover ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.realtime-search-hover li {
+  padding: 5px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.realtime-search-hover li:last-child {
+  border-bottom: none;
+}
