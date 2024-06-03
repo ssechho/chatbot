@@ -91,7 +91,6 @@ const Chatbot = () => {
       .map((msg) => msg.parts.map((part) => part.text).join(" "))
       .join(" ");
     if (userMessages.length < 20) {
-      // 메시지가 충분하지 않은 경우 타임스탬프 반환
       const now = new Date();
       return now.toLocaleString("ko-KR", {
         year: "numeric",
@@ -104,6 +103,7 @@ const Chatbot = () => {
     }
 
     try {
+      console.log("Sending API request with messages:", userMessages);
       const response = await fetch("/api/generate-title", {
         method: "POST",
         headers: {
@@ -117,6 +117,7 @@ const Chatbot = () => {
       }
 
       const data = await response.json();
+      console.log("API response data:", data);
 
       if (!data || !data.title) {
         throw new Error("Invalid response format");
