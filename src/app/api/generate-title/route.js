@@ -13,9 +13,6 @@ export async function POST(req) {
   }
 
   try {
-    const data = await req.json();
-    console.log("Received messages for title generation:", data.messages);
-
     // 메시지 히스토리를 OpenAI 포맷에 맞게 변환
     const messages = data.messages.map((msg) => ({
       role: msg.role === "user" ? "user" : "assistant",

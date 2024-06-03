@@ -20,8 +20,8 @@ import {
 import { getProfileImage } from "@/utils/profileImageHelper";
 
 const personalities = {
-  intellectual: "안경척! 오늘 어떤 이야기를 나눌까?",
-  funny: "덕메야! 오늘 어떤 재미난 일이 있었어?",
+  intellectual: "오늘 어떤 이야기를 나눌까?(안경 척!)",
+  funny: "오늘은 어떤 재미난 일이 있었어?(주접ㅎㅎ)",
 };
 
 const apiUrls = {
