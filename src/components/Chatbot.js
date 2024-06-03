@@ -169,16 +169,17 @@ const Chatbot = () => {
     if (conversationDoc.exists()) {
       const conversationData = conversationDoc.data();
       setCurrentConversation(conversationId);
-      setMessages(conversationData.messages);
-      setMessageImages(conversationData.messageImages);
+      setMessages(conversationData.messages || []);
+      setMessageImages(conversationData.messageImages || []);
       setPersonality(conversationData.mode);
       setDefaultProfileImages((prev) => ({
         ...prev,
-        [conversationData.mode]: conversationData.messageImages[0].includes(
-          "boy"
-        )
-          ? "boy"
-          : "girl",
+        [conversationData.mode]:
+          conversationData.messageImages &&
+          conversationData.messageImages[0] &&
+          conversationData.messageImages[0].includes("boy")
+            ? "boy"
+            : "girl",
       }));
       setLoading(false);
     } else {

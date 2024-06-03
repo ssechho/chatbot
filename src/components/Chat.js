@@ -5,7 +5,7 @@ import { ChatBubble } from "./ChatBubble";
 
 export const Chat = ({
   messages,
-  messageImages,
+  messageImages = [],
   loading,
   onSendMessage,
   mode,
@@ -19,7 +19,7 @@ export const Chat = ({
             message.role === "assistant" ? "items-start" : "items-end"
           }`}
         >
-          {message.role === "assistant" && (
+          {message.role === "assistant" && messageImages[index] && (
             <img
               src={messageImages[index]}
               alt="profile"
