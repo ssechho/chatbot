@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
-import Link from 'next/link';
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { db } from "@/firebase";
@@ -15,12 +15,13 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  where
+  where,
 } from "firebase/firestore";
+import { getProfileImage } from "@/utils/profileImageHelper";
 
 const personalities = {
-  intellectual: "안녕? 나는 안경척!이야. 오늘은 어떤 지적인 이야기를 나눌까?",
-  funny: "안녕? 나는 덕메야. 오늘은 무슨 재미난 일이 있었니?",
+  intellectual: "오늘 어떤 이야기를 나눌까?(안경 척!)",
+  funny: "오늘은 어떤 재미난 일이 있었어?(주접ㅎㅎ)",
 };
 
 const apiUrls = {
@@ -28,47 +29,25 @@ const apiUrls = {
   funny: "/api/funny",
 };
 
-const RealtimeSearch = () => {
-  const [index, setIndex] = useState(0);
-  const items = Array.from({ length: 10 }, (_, i) => `검색어 ${i + 1}`);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % items.length);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [items.length]);
-
-  return (
-    <div className="relative inline-block ml-auto">
-      <div className="realtime-search-container">
-        <div className="realtime-search">
-          {items.map((item, idx) => (
-            <div key={idx} className={`item ${index === idx ? 'active' : ''}`}>
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="realtime-search-hover">
-        <ul>
-          {items.map((item, idx) => (
-            <li key={idx}>{item}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
+const generateRandomUsername = () => {
+  const adjectives = ["Brave", "Clever", "Witty", "Kind", "Curious"];
+  const nouns = ["Lion", "Wizard", "Unicorn", "Phoenix", "Dragon"];
+  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  const number = Math.floor(Math.random() * 1000);
+  return `${adjective}${noun}${number}`;
 };
 
 const Chatbot = () => {
   const router = useRouter();
   const [messages, setMessages] = useState([]);
+  const [messageImages, setMessageImages] = useState([]);
   const [extractedWords, setExtractedWords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [personality, setPersonality] = useState(null);
+  const [defaultProfileImages, setDefaultProfileImages] = useState({});
   const messagesEndRef = useRef(null);
 
   const { data: session } = useSession({
@@ -79,14 +58,17 @@ const Chatbot = () => {
   });
 
   useEffect(() => {
-    console.log("session data", session);
-    loadConversations();
-  }, [session]); // 세션이 변경될 때마다 대화 목록을 다시 불러옴
+    if (session) {
+      loadConversations();
+    }
+  }, [session]);
 
-  // Firebase에서 대화 내용 로드
   const loadConversations = async () => {
     if (session?.user?.name) {
-      const q = query(collection(db, "conversations"), where("username", "==", session?.user?.name));
+      const q = query(
+        collection(db, "conversations"),
+        where("username", "==", session.user.name)
+      );
       const querySnapshot = await getDocs(q);
       const loadedConversations = [];
       querySnapshot.forEach((doc) => {
@@ -98,6 +80,70 @@ const Chatbot = () => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const generateProfileImageForMessage = (message, index, gender, mode) => {
+    if (message.role === "assistant") {
+      return getProfileImage(index, gender, mode);
+    }
+    return null;
+  };
+
+  const getChatTitle = async (messages) => {
+    const allMessages = messages.map((msg) => {
+      const role = msg.role === "user" ? "User" : "Assistant";
+      const content = msg.parts.map((part) => part.text).join(" ");
+      return { role: msg.role, content };
+    });
+
+    if (allMessages.length < 2) {
+      const now = new Date();
+      return now.toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
+
+    try {
+      console.log("Sending API request with messages:", allMessages);
+      const response = await fetch("/api/generate-title", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages: allMessages }),
+      });
+
+      console.log("API response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch the title from API");
+      }
+
+      const data = await response.json();
+      console.log("API response data:", data);
+
+      if (!data || !data.title) {
+        throw new Error("Invalid response format");
+      }
+
+      return data.title;
+    } catch (error) {
+      console.error("Error generating title:", error);
+      const now = new Date();
+      return now.toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
   };
 
   const extractWordsFromMessage = (message) => {
@@ -112,7 +158,17 @@ const Chatbot = () => {
 
   const handleSend = async (message) => {
     const updatedMessages = [...messages, message];
+    const updatedMessageImages = [
+      ...messageImages,
+      generateProfileImageForMessage(
+        message,
+        messages.length,
+        defaultProfileImages[personality].gender,
+        personality
+      ),
+    ];
     setMessages(updatedMessages);
+    setMessageImages(updatedMessageImages);
     setLoading(true);
 
     const response = await fetch(apiUrls[personality], {
@@ -129,20 +185,30 @@ const Chatbot = () => {
     }
 
     const result = await response.json();
-    if (!result) {
-      return;
-    }
+    const updatedResultMessage = result;
+    const updatedResultImage = generateProfileImageForMessage(
+      result,
+      updatedMessages.length,
+      defaultProfileImages[personality].gender,
+      personality
+    );
 
-    setLoading(false);
-    setMessages((messages) => [...messages, result]);
+    setMessages((messages) => [...messages, updatedResultMessage]);
+    setMessageImages((images) => [...images, updatedResultImage]);
 
-    // Firebase에 대화 내용 저장
     if (currentConversation !== null) {
       const conversationRef = doc(db, "conversations", currentConversation);
+      setLoading(false); // Stop loading before getting chat title
+      const title = await getChatTitle([
+        ...updatedMessages,
+        updatedResultMessage,
+      ]);
       await updateDoc(conversationRef, {
-        messages: [...updatedMessages, result],
+        messages: [...updatedMessages, updatedResultMessage],
+        messageImages: [...updatedMessageImages, updatedResultImage],
+        title: title,
       });
-
+      
       // 답변에서 <> 사이의 단어들을 추출하여 Firebase에 저장
       const extracted = extractWordsFromMessage(result.parts[0].text);
       if (extracted.length > 0) {
@@ -157,20 +223,37 @@ const Chatbot = () => {
           conversationId: currentConversation,
           words: extracted,
         });
-      }
+      }      
+
+      // 사이드바 대화 목록 업데이트
+      setConversations((prevConversations) =>
+        prevConversations.map((conversation) =>
+          conversation.id === currentConversation
+            ? { ...conversation, title: title }
+            : conversation
+        )
+      );
+    } else {
+      setLoading(false);
     }
   };
 
   const handleReset = () => {
     if (personality) {
-      setMessages([
-        {
-          role: "assistant",
-          parts: [{ text: personalities[personality] }],
-        },
-      ]);
+      const gender = Math.random() > 0.5 ? "boy" : "girl";
+      setDefaultProfileImages((prev) => ({
+        ...prev,
+        [personality]: { gender, profile: gender },
+      }));
+      const initialMessage = {
+        role: "assistant",
+        parts: [{ text: personalities[personality] }],
+      };
+      setMessages([initialMessage]);
+      setMessageImages([getProfileImage(0, gender, personality)]);
     } else {
       setMessages([]);
+      setMessageImages([]);
     }
   };
 
@@ -178,6 +261,7 @@ const Chatbot = () => {
     setPersonality(null);
     setCurrentConversation(null);
     setMessages([]);
+    setMessageImages([]);
   };
 
   const handleSelectConversation = async (conversationId) => {
@@ -186,9 +270,27 @@ const Chatbot = () => {
     const conversationDoc = await getDoc(conversationRef);
     if (conversationDoc.exists()) {
       const conversationData = conversationDoc.data();
-      setCurrentConversation(conversationId); // 현재 선택된 대화 ID 설정
-      setMessages(conversationData.messages);
+      setCurrentConversation(conversationId);
+      setMessages(conversationData.messages || []);
+      setMessageImages(conversationData.messageImages || []);
       setPersonality(conversationData.mode);
+      setDefaultProfileImages((prev) => ({
+        ...prev,
+        [conversationData.mode]: {
+          gender:
+            conversationData.messageImages &&
+            conversationData.messageImages[0] &&
+            conversationData.messageImages[0].includes("boy")
+              ? "boy"
+              : "girl",
+          profile:
+            conversationData.messageImages &&
+            conversationData.messageImages[0] &&
+            conversationData.messageImages[0].includes("boy")
+              ? "boy"
+              : "girl",
+        },
+      }));
       setLoading(false);
     } else {
       setLoading(false);
@@ -198,37 +300,60 @@ const Chatbot = () => {
 
   const handleSetPersonality = async (selectedPersonality) => {
     setPersonality(selectedPersonality);
+    const gender = Math.random() > 0.5 ? "boy" : "girl";
+    setDefaultProfileImages((prev) => ({
+      ...prev,
+      [selectedPersonality]: { gender, profile: gender },
+    }));
     const now = new Date();
     const timestamp = now.toLocaleString("ko-KR", {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
+    const username = session?.user?.name || generateRandomUsername();
+
+    const initialMessage = {
+      role: "assistant",
+      parts: [{ text: personalities[selectedPersonality] }],
+    };
     const newConversation = {
       title: timestamp,
-      messages: [
-        {
-          role: "assistant",
-          parts: [{ text: personalities[selectedPersonality] }],
-        },
-      ],
+      messages: [initialMessage],
+      messageImages: [getProfileImage(0, gender, selectedPersonality)],
       mode: selectedPersonality,
-      username: session.user.name,
+      username: username,
     };
-    const docRef = await addDoc(collection(db, "conversations"), newConversation);
-    const newConversations = [...conversations, { id: docRef.id, ...newConversation }];
+    const docRef = await addDoc(
+      collection(db, "conversations"),
+      newConversation
+    );
+    const newConversations = [
+      ...conversations,
+      { id: docRef.id, ...newConversation },
+    ];
     setConversations(newConversations);
     setCurrentConversation(docRef.id);
-    setMessages(newConversation.messages); // 새로운 대화 시작 시 초기 메시지 설정
-  };
+    setMessages([initialMessage]);
+    setMessageImages([getProfileImage(0, gender, selectedPersonality)]);
 
+    // 대화 제목 업데이트
+    const title = await getChatTitle([initialMessage]);
+    await updateDoc(docRef, { title: title });
+    setConversations((prevConversations) =>
+      prevConversations.map((conversation) =>
+        conversation.id === docRef.id
+          ? { ...conversation, title: title }
+          : conversation
+      )
+    );
+  };
 
   const deleteConversation = async (conversationId) => {
     try {
-      // Firebase에서 대화 삭제
       await deleteDoc(doc(db, "conversations", conversationId));
 
       // Firebase에서 추출된 단어 삭제
@@ -239,12 +364,15 @@ const Chatbot = () => {
       });
 
       // 로컬 상태에서 대화 삭제
-      setConversations(conversations.filter(conversation => conversation.id !== conversationId));
-
-      // 현재 선택된 대화가 삭제된 경우 초기화
+      setConversations(
+        conversations.filter(
+          (conversation) => conversation.id !== conversationId
+        )
+      );
       if (currentConversation === conversationId) {
         setCurrentConversation(null);
         setMessages([]);
+        setMessageImages([]);
       }
     } catch (error) {
       console.error("Error deleting conversation:", error);
@@ -261,12 +389,14 @@ const Chatbot = () => {
 
   useEffect(() => {
     if (currentConversation !== null) {
-      const updatedConversations = conversations.map(conversation =>
-        conversation.id === currentConversation ? { ...conversation, messages } : conversation
+      const updatedConversations = conversations.map((conversation) =>
+        conversation.id === currentConversation
+          ? { ...conversation, messages, messageImages }
+          : conversation
       );
       setConversations(updatedConversations);
     }
-  }, [messages]);
+  }, [messages, messageImages]);
 
   return (
     <>
@@ -281,15 +411,19 @@ const Chatbot = () => {
         <Sidebar
           conversations={conversations}
           onSelectConversation={handleSelectConversation}
-          onDeleteConversation={deleteConversation} // 추가된 부분
+          onDeleteConversation={deleteConversation}
         />
         <div className="flex-1 flex flex-col bg-white shadow rounded-lg">
           <div className="flex h-[50px] sm:h-[60px] border-b border-neutral-300 py-2 px-2 sm:px-8 items-center justify-between">
             <div className="font-bold text-3xl flex text-center">
-              <Link href="/login" className="ml-2 hover:opacity-50">Chatflix</Link>
-              <Link href="/library" className="ml-4 hover:opacity-50"> 라이브러리 </Link>
+              <Link href="/login" className="ml-2 hover:opacity-50">
+                Chatflix
+              </Link>
+              <Link href="/library" className="ml-4 hover:opacity-50">
+                {" "}
+                라이브러리{" "}
+              </Link>
             </div>
-            <RealtimeSearch />
           </div>
           <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
             <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
@@ -336,6 +470,7 @@ const Chatbot = () => {
               ) : (
                 <Chat
                   messages={messages}
+                  messageImages={messageImages}
                   loading={loading}
                   onSendMessage={handleSend}
                   mode={personality}

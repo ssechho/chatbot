@@ -49,10 +49,10 @@ const profileImages = {
   },
 };
 
-export const getProfileImage = (index, defaultProfile, mode) => {
+export const getProfileImage = (index, gender, mode) => {
   if (index === 0) {
-    return profileImages[`${mode}_default`][defaultProfile];
+    return profileImages[`${mode}_default`][gender];
   }
-  const profileOptions = profileImages[mode][defaultProfile];
+  const profileOptions = profileImages[mode][gender];
   return profileOptions[(index - 1) % profileOptions.length];
 };
