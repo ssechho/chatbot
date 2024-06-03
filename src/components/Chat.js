@@ -3,7 +3,13 @@ import { ChatInput } from "./ChatInput";
 import { ChatLoader } from "./ChatLoader";
 import { ChatBubble } from "./ChatBubble";
 
-export const Chat = ({ messages, loading, onSendMessage, mode }) => {
+export const Chat = ({
+  messages,
+  messageImages,
+  loading,
+  onSendMessage,
+  mode,
+}) => {
   return (
     <div className="chat-container flex flex-col rounded-lg px-2 sm:p-4 sm:border border-neutral-300">
       {messages.map((message, index) => (
@@ -15,7 +21,7 @@ export const Chat = ({ messages, loading, onSendMessage, mode }) => {
         >
           {message.role === "assistant" && (
             <img
-              src={message.profileImage}
+              src={messageImages[index]}
               alt="profile"
               className="profile-image"
             />

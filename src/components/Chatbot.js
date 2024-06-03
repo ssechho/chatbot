@@ -33,6 +33,7 @@ const apiUrls = {
 const Chatbot = () => {
   const router = useRouter();
   const [messages, setMessages] = useState([]);
+  const [messageImages, setMessageImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
@@ -79,14 +80,15 @@ const Chatbot = () => {
     defaultProfile
   ) => {
     if (message.role === "assistant") {
-      message.profileImage = getProfileImage(index, defaultProfile, mode);
+      return getProfileImage(index, defaultProfile, mode);
     }
-    return message;
+    return null;
   };
 
   const handleSend = async (message) => {
-    const updatedMessages = [
-      ...messages,
+    const updatedMessages = [...messages, message];
+    const updatedMessageImages = [
+      ...messageImages,
       generateProfileImageForMessage(
         message,
         messages.length,
@@ -95,6 +97,7 @@ const Chatbot = () => {
       ),
     ];
     setMessages(updatedMessages);
+    setMessageImages(updatedMessageImages);
     setLoading(true);
 
     const response = await fetch(apiUrls[personality], {
@@ -111,18 +114,22 @@ const Chatbot = () => {
     }
 
     const result = await response.json();
-    const updatedResultMessage = generateProfileImageForMessage(
+    const updatedResultMessage = result;
+    const updatedResultImage = generateProfileImageForMessage(
       result,
       updatedMessages.length,
       personality,
       defaultProfileImages[personality]
     );
+
     setMessages((messages) => [...messages, updatedResultMessage]);
+    setMessageImages((images) => [...images, updatedResultImage]);
 
     if (currentConversation !== null) {
       const conversationRef = doc(db, "conversations", currentConversation);
       await updateDoc(conversationRef, {
         messages: [...updatedMessages, updatedResultMessage],
+        messageImages: [...updatedMessageImages, updatedResultImage],
       });
     }
 
@@ -136,15 +143,15 @@ const Chatbot = () => {
         ...prev,
         [personality]: initialProfile,
       }));
-      setMessages([
-        {
-          role: "assistant",
-          parts: [{ text: personalities[personality] }],
-          profileImage: getProfileImage(0, initialProfile, personality),
-        },
-      ]);
+      const initialMessage = {
+        role: "assistant",
+        parts: [{ text: personalities[personality] }],
+      };
+      setMessages([initialMessage]);
+      setMessageImages([getProfileImage(0, initialProfile, personality)]);
     } else {
       setMessages([]);
+      setMessageImages([]);
     }
   };
 
@@ -152,6 +159,7 @@ const Chatbot = () => {
     setPersonality(null);
     setCurrentConversation(null);
     setMessages([]);
+    setMessageImages([]);
   };
 
   const handleSelectConversation = async (conversationId) => {
@@ -162,13 +170,15 @@ const Chatbot = () => {
       const conversationData = conversationDoc.data();
       setCurrentConversation(conversationId);
       setMessages(conversationData.messages);
+      setMessageImages(conversationData.messageImages);
       setPersonality(conversationData.mode);
       setDefaultProfileImages((prev) => ({
         ...prev,
-        [conversationData.mode]:
-          conversationData.messages[0].profileImage.includes("boy")
-            ? "boy"
-            : "girl",
+        [conversationData.mode]: conversationData.messageImages[0].includes(
+          "boy"
+        )
+          ? "boy"
+          : "girl",
       }));
       setLoading(false);
     } else {
@@ -193,18 +203,15 @@ const Chatbot = () => {
       second: "2-digit",
     });
     if (session?.user?.name) {
+      const initialMessage = {
+        role: "assistant",
+        parts: [{ text: personalities[selectedPersonality] }],
+      };
       const newConversation = {
         title: timestamp,
-        messages: [
-          {
-            role: "assistant",
-            parts: [{ text: personalities[selectedPersonality] }],
-            profileImage: getProfileImage(
-              0,
-              initialProfile,
-              selectedPersonality
-            ),
-          },
+        messages: [initialMessage],
+        messageImages: [
+          getProfileImage(0, initialProfile, selectedPersonality),
         ],
         mode: selectedPersonality,
         username: session.user.name,
@@ -219,7 +226,10 @@ const Chatbot = () => {
       ];
       setConversations(newConversations);
       setCurrentConversation(docRef.id);
-      setMessages(newConversation.messages);
+      setMessages([initialMessage]);
+      setMessageImages([
+        getProfileImage(0, initialProfile, selectedPersonality),
+      ]);
     } else {
       console.error("Username is undefined.");
     }
@@ -236,6 +246,7 @@ const Chatbot = () => {
       if (currentConversation === conversationId) {
         setCurrentConversation(null);
         setMessages([]);
+        setMessageImages([]);
       }
     } catch (error) {
       console.error("Error deleting conversation:", error);
@@ -254,12 +265,12 @@ const Chatbot = () => {
     if (currentConversation !== null) {
       const updatedConversations = conversations.map((conversation) =>
         conversation.id === currentConversation
-          ? { ...conversation, messages }
+          ? { ...conversation, messages, messageImages }
           : conversation
       );
       setConversations(updatedConversations);
     }
-  }, [messages]);
+  }, [messages, messageImages]);
 
   return (
     <>
@@ -334,6 +345,7 @@ const Chatbot = () => {
               ) : (
                 <Chat
                   messages={messages}
+                  messageImages={messageImages}
                   loading={loading}
                   onSendMessage={handleSend}
                   mode={personality}
