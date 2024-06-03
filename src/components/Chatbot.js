@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
-import RealtimeSearch from "@/components/RealtimeSearch"; // RealtimeSearch 컴포넌트 임포트
+// import RealtimeSearch from "@/components/RealtimeSearch"; // RealtimeSearch 컴포넌트 임포트
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -299,7 +299,7 @@ const Chatbot = () => {
                 라이브러리{" "}
               </Link>
             </div>
-            <RealtimeSearch />
+            {/* <RealtimeSearch /> */}
           </div>
           <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
             <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
