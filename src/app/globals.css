@@ -9,16 +9,18 @@ body {
 
 /* Button Styles */
 .btn {
-  @apply py-4 px-8 rounded-lg flex items-center justify-center gap-6 font-bold text-lg;
+  @apply py-4 px-8 rounded-lg flex-col items-center justify-center gap-6 text-lg;
   height: auto; /* Ensure height is flexible */
 }
 
 .btn-intellectual {
-  @apply bg-green-500 text-white hover:bg-green-700;
+  @apply bg-neutral-900 text-white hover:bg-black h-96 w-72 border-2;
+  border-image: linear-gradient(45deg, red, orange) 1;
 }
 
 .btn-funny {
-  @apply bg-red-500 text-white hover:bg-red-700;
+  @apply bg-neutral-900 text-white hover:bg-black h-96 w-72 border-2;
+  border-image: linear-gradient(45deg, red, orange) 1;
 }
 
 .btn img {

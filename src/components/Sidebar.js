@@ -6,8 +6,8 @@ const Sidebar = ({ conversations, onSelectConversation, onDeleteConversation }) 
   }, [conversations]);
 
   return (
-    <div className="w-1/4 h-screen bg-gray-100 p-4">
-      <h2 className="text-2xl font-bold mb-4">Conversations</h2>
+    <div className="w-1/4 h-screen bg-black p-4">
+      <h2 className="text-xl mb-4 ml-4 text-neutral-200">Conversations</h2>
       <ul>
         {conversations.map((conversation, index) => (
           <li

@@ -11,7 +11,7 @@ export const Chat = ({
   mode,
 }) => {
   return (
-    <div className="chat-container flex flex-col rounded-lg px-2 sm:p-4 sm:border border-neutral-300">
+    <div className="chat-container flex flex-col rounded-lg px-2 sm:p-4 sm:border border-neutral-800 bg-neutral-950">
       {messages.map((message, index) => (
         <div
           key={index}
