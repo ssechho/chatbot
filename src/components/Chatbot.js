@@ -85,6 +85,49 @@ const Chatbot = () => {
     return null;
   };
 
+  const getChatTitle = async (messages) => {
+    const userMessages = messages
+      .filter((msg) => msg.role === "user")
+      .map((msg) => msg.parts.map((part) => part.text).join(" "))
+      .join(" ");
+    if (userMessages.length < 20) {
+      // 메시지가 충분하지 않은 경우 타임스탬프 반환
+      const now = new Date();
+      return now.toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
+
+    try {
+      const response = await fetch("/api/generate-title", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages: userMessages }),
+      });
+
+      const data = await response.json();
+      return data.title;
+    } catch (error) {
+      console.error("Error generating title:", error);
+      const now = new Date();
+      return now.toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
+  };
+
   const handleSend = async (message) => {
     const updatedMessages = [...messages, message];
     const updatedMessageImages = [
@@ -127,9 +170,14 @@ const Chatbot = () => {
 
     if (currentConversation !== null) {
       const conversationRef = doc(db, "conversations", currentConversation);
+      const title = await getChatTitle([
+        ...updatedMessages,
+        updatedResultMessage,
+      ]);
       await updateDoc(conversationRef, {
         messages: [...updatedMessages, updatedResultMessage],
         messageImages: [...updatedMessageImages, updatedResultImage],
+        title: title,
       });
     }
 
@@ -209,7 +257,7 @@ const Chatbot = () => {
         parts: [{ text: personalities[selectedPersonality] }],
       };
       const newConversation = {
-        title: timestamp,
+        title: timestamp, // 임시 제목
         messages: [initialMessage],
         messageImages: [
           getProfileImage(0, initialProfile, selectedPersonality),
@@ -231,6 +279,17 @@ const Chatbot = () => {
       setMessageImages([
         getProfileImage(0, initialProfile, selectedPersonality),
       ]);
+
+      // 대화 제목 업데이트
+      const title = await getChatTitle([initialMessage]);
+      await updateDoc(docRef, { title: title });
+      setConversations((prevConversations) =>
+        prevConversations.map((conversation) =>
+          conversation.id === docRef.id
+            ? { ...conversation, title: title }
+            : conversation
+        )
+      );
     } else {
       console.error("Username is undefined.");
     }
