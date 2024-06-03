@@ -1,11 +1,22 @@
-import React, { useEffect, useRef, useState } from "react";
+import Head from "next/head";
+import { useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import Sidebar from "@/components/Sidebar";
-import Link from 'next/link';
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { db } from "@/firebase";
-import { collection, query, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
+import {
+  collection,
+  query,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  where,
+} from "firebase/firestore";
 import { getProfileImage } from "@/utils/profileImageHelper";
 
 const personalities = {
@@ -41,7 +52,10 @@ const Chatbot = () => {
 
   const loadConversations = async () => {
     if (session?.user?.name) {
-      const q = query(collection(db, "conversations"), where("username", "==", session?.user?.name));
+      const q = query(
+        collection(db, "conversations"),
+        where("username", "==", session?.user?.name)
+      );
       const querySnapshot = await getDocs(q);
       const loadedConversations = [];
       querySnapshot.forEach((doc) => {
@@ -55,7 +69,12 @@ const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const generateProfileImageForMessage = (message, index, mode, defaultProfile) => {
+  const generateProfileImageForMessage = (
+    message,
+    index,
+    mode,
+    defaultProfile
+  ) => {
     if (message.role === "assistant") {
       message.profileImage = getProfileImage(index, defaultProfile, mode);
     }
@@ -63,7 +82,15 @@ const Chatbot = () => {
   };
 
   const handleSend = async (message) => {
-    const updatedMessages = [...messages, generateProfileImageForMessage(message, messages.length, personality, defaultProfileImages[personality])];
+    const updatedMessages = [
+      ...messages,
+      generateProfileImageForMessage(
+        message,
+        messages.length,
+        personality,
+        defaultProfileImages[personality]
+      ),
+    ];
     setMessages(updatedMessages);
     setLoading(true);
 
@@ -82,7 +109,15 @@ const Chatbot = () => {
 
     const result = await response.json();
     setLoading(false);
-    setMessages((messages) => [...messages, generateProfileImageForMessage(result, updatedMessages.length, personality, defaultProfileImages[personality])]);
+    setMessages((messages) => [
+      ...messages,
+      generateProfileImageForMessage(
+        result,
+        updatedMessages.length,
+        personality,
+        defaultProfileImages[personality]
+      ),
+    ]);
 
     if (currentConversation !== null) {
       const conversationRef = doc(db, "conversations", currentConversation);
@@ -95,12 +130,15 @@ const Chatbot = () => {
   const handleReset = () => {
     if (personality) {
       const initialProfile = Math.random() > 0.5 ? "boy" : "girl";
-      setDefaultProfileImages((prev) => ({ ...prev, [personality]: initialProfile }));
+      setDefaultProfileImages((prev) => ({
+        ...prev,
+        [personality]: initialProfile,
+      }));
       setMessages([
         {
           role: "assistant",
           parts: [{ text: personalities[personality] }],
-          profileImage: getProfileImage(0, initialProfile, personality)
+          profileImage: getProfileImage(0, initialProfile, personality),
         },
       ]);
     } else {
@@ -123,7 +161,13 @@ const Chatbot = () => {
       setCurrentConversation(conversationId);
       setMessages(conversationData.messages);
       setPersonality(conversationData.mode);
-      setDefaultProfileImages((prev) => ({ ...prev, [conversationData.mode]: conversationData.messages[0].profileImage.includes("boy") ? "boy" : "girl" }));
+      setDefaultProfileImages((prev) => ({
+        ...prev,
+        [conversationData.mode]:
+          conversationData.messages[0].profileImage.includes("boy")
+            ? "boy"
+            : "girl",
+      }));
       setLoading(false);
     } else {
       setLoading(false);
@@ -133,15 +177,18 @@ const Chatbot = () => {
   const handleSetPersonality = async (selectedPersonality) => {
     setPersonality(selectedPersonality);
     const initialProfile = Math.random() > 0.5 ? "boy" : "girl";
-    setDefaultProfileImages((prev) => ({ ...prev, [selectedPersonality]: initialProfile }));
+    setDefaultProfileImages((prev) => ({
+      ...prev,
+      [selectedPersonality]: initialProfile,
+    }));
     const now = new Date();
     const timestamp = now.toLocaleString("ko-KR", {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
     const newConversation = {
       title: timestamp,
@@ -149,14 +196,20 @@ const Chatbot = () => {
         {
           role: "assistant",
           parts: [{ text: personalities[selectedPersonality] }],
-          profileImage: getProfileImage(0, initialProfile, selectedPersonality)
+          profileImage: getProfileImage(0, initialProfile, selectedPersonality),
         },
       ],
       mode: selectedPersonality,
       username: session.user.name,
     };
-    const docRef = await addDoc(collection(db, "conversations"), newConversation);
-    const newConversations = [...conversations, { id: docRef.id, ...newConversation }];
+    const docRef = await addDoc(
+      collection(db, "conversations"),
+      newConversation
+    );
+    const newConversations = [
+      ...conversations,
+      { id: docRef.id, ...newConversation },
+    ];
     setConversations(newConversations);
     setCurrentConversation(docRef.id);
     setMessages(newConversation.messages);
@@ -165,7 +218,11 @@ const Chatbot = () => {
   const deleteConversation = async (conversationId) => {
     try {
       await deleteDoc(doc(db, "conversations", conversationId));
-      setConversations(conversations.filter(conversation => conversation.id !== conversationId));
+      setConversations(
+        conversations.filter(
+          (conversation) => conversation.id !== conversationId
+        )
+      );
       if (currentConversation === conversationId) {
         setCurrentConversation(null);
         setMessages([]);
@@ -185,8 +242,10 @@ const Chatbot = () => {
 
   useEffect(() => {
     if (currentConversation !== null) {
-      const updatedConversations = conversations.map(conversation =>
-        conversation.id === currentConversation ? { ...conversation, messages } : conversation
+      const updatedConversations = conversations.map((conversation) =>
+        conversation.id === currentConversation
+          ? { ...conversation, messages }
+          : conversation
       );
       setConversations(updatedConversations);
     }
@@ -210,8 +269,13 @@ const Chatbot = () => {
         <div className="flex-1 flex flex-col bg-white shadow rounded-lg">
           <div className="flex h-[50px] sm:h-[60px] border-b border-neutral-300 py-2 px-2 sm:px-8 items-center justify-between">
             <div className="font-bold text-3xl flex text-center">
-              <Link href="/login" className="ml-2 hover:opacity-50">Chatflix</Link>
-              <Link href="/library" className="ml-4 hover:opacity-50"> 라이브러리 </Link>
+              <Link href="/login" className="ml-2 hover:opacity-50">
+                Chatflix
+              </Link>
+              <Link href="/library" className="ml-4 hover:opacity-50">
+                {" "}
+                라이브러리{" "}
+              </Link>
             </div>
             <RealtimeSearch />
           </div>
