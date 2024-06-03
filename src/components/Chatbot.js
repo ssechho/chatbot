@@ -64,6 +64,7 @@ const RealtimeSearch = () => {
 const Chatbot = () => {
   const router = useRouter();
   const [messages, setMessages] = useState([]);
+  const [extractedWords, setExtractedWords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
@@ -99,6 +100,16 @@ const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const extractWordsFromMessage = (message) => {
+    const regex = /<(.*?)>/g; // <> 사이의 내용을 추출하는 정규식
+    const matches = [];
+    let match;
+    while ((match = regex.exec(message)) !== null) {
+      matches.push(match[1]);
+    }
+    return matches;
+  };
+
   const handleSend = async (message) => {
     const updatedMessages = [...messages, message];
     setMessages(updatedMessages);
@@ -131,6 +142,22 @@ const Chatbot = () => {
       await updateDoc(conversationRef, {
         messages: [...updatedMessages, result],
       });
+
+      // 답변에서 <> 사이의 단어들을 추출하여 Firebase에 저장
+      const extracted = extractWordsFromMessage(result.parts[0].text);
+      if (extracted.length > 0) {
+        const newExtractedWords = [
+          ...extractedWords,
+          { conversationId: currentConversation, words: extracted },
+        ];
+        setExtractedWords(newExtractedWords);
+
+        // Firebase에 저장
+        await addDoc(collection(db, "extractedWords"), {
+          conversationId: currentConversation,
+          words: extracted,
+        });
+      }
     }
   };
 
@@ -159,7 +186,7 @@ const Chatbot = () => {
     const conversationDoc = await getDoc(conversationRef);
     if (conversationDoc.exists()) {
       const conversationData = conversationDoc.data();
-      setCurrentConversation(conversationId);
+      setCurrentConversation(conversationId); // 현재 선택된 대화 ID 설정
       setMessages(conversationData.messages);
       setPersonality(conversationData.mode);
       setLoading(false);
@@ -167,6 +194,7 @@ const Chatbot = () => {
       setLoading(false);
     }
   };
+
 
   const handleSetPersonality = async (selectedPersonality) => {
     setPersonality(selectedPersonality);
@@ -197,10 +225,18 @@ const Chatbot = () => {
     setMessages(newConversation.messages); // 새로운 대화 시작 시 초기 메시지 설정
   };
 
+
   const deleteConversation = async (conversationId) => {
     try {
       // Firebase에서 대화 삭제
       await deleteDoc(doc(db, "conversations", conversationId));
+
+      // Firebase에서 추출된 단어 삭제
+      const q = query(collection(db, "extractedWords"), where("conversationId", "==", conversationId));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        deleteDoc(doc.ref);
+      });
 
       // 로컬 상태에서 대화 삭제
       setConversations(conversations.filter(conversation => conversation.id !== conversationId));
