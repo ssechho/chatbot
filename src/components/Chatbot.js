@@ -81,14 +81,9 @@ const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const generateProfileImageForMessage = (
-    message,
-    index,
-    mode,
-    defaultProfile
-  ) => {
+  const generateProfileImageForMessage = (message, index, gender, mode) => {
     if (message.role === "assistant") {
-      return getProfileImage(index, defaultProfile, mode);
+      return getProfileImage(index, gender, mode);
     }
     return null;
   };
@@ -157,8 +152,8 @@ const Chatbot = () => {
       generateProfileImageForMessage(
         message,
         messages.length,
-        personality,
-        defaultProfileImages[personality]
+        defaultProfileImages[personality].gender,
+        personality
       ),
     ];
     setMessages(updatedMessages);
@@ -183,8 +178,8 @@ const Chatbot = () => {
     const updatedResultImage = generateProfileImageForMessage(
       result,
       updatedMessages.length,
-      personality,
-      defaultProfileImages[personality]
+      defaultProfileImages[personality].gender,
+      personality
     );
 
     setMessages((messages) => [...messages, updatedResultMessage]);
@@ -192,6 +187,7 @@ const Chatbot = () => {
 
     if (currentConversation !== null) {
       const conversationRef = doc(db, "conversations", currentConversation);
+      setLoading(false); // Stop loading before getting chat title
       const title = await getChatTitle([
         ...updatedMessages,
         updatedResultMessage,
@@ -209,24 +205,24 @@ const Chatbot = () => {
             : conversation
         )
       );
+    } else {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleReset = () => {
     if (personality) {
-      const initialProfile = Math.random() > 0.5 ? "boy" : "girl";
+      const gender = Math.random() > 0.5 ? "boy" : "girl";
       setDefaultProfileImages((prev) => ({
         ...prev,
-        [personality]: initialProfile,
+        [personality]: { gender, profile: gender },
       }));
       const initialMessage = {
         role: "assistant",
         parts: [{ text: personalities[personality] }],
       };
       setMessages([initialMessage]);
-      setMessageImages([getProfileImage(0, initialProfile, personality)]);
+      setMessageImages([getProfileImage(0, gender, personality)]);
     } else {
       setMessages([]);
       setMessageImages([]);
@@ -252,12 +248,20 @@ const Chatbot = () => {
       setPersonality(conversationData.mode);
       setDefaultProfileImages((prev) => ({
         ...prev,
-        [conversationData.mode]:
-          conversationData.messageImages &&
-          conversationData.messageImages[0] &&
-          conversationData.messageImages[0].includes("boy")
-            ? "boy"
-            : "girl",
+        [conversationData.mode]: {
+          gender:
+            conversationData.messageImages &&
+            conversationData.messageImages[0] &&
+            conversationData.messageImages[0].includes("boy")
+              ? "boy"
+              : "girl",
+          profile:
+            conversationData.messageImages &&
+            conversationData.messageImages[0] &&
+            conversationData.messageImages[0].includes("boy")
+              ? "boy"
+              : "girl",
+        },
       }));
       setLoading(false);
     } else {
@@ -267,10 +271,10 @@ const Chatbot = () => {
 
   const handleSetPersonality = async (selectedPersonality) => {
     setPersonality(selectedPersonality);
-    const initialProfile = Math.random() > 0.5 ? "boy" : "girl";
+    const gender = Math.random() > 0.5 ? "boy" : "girl";
     setDefaultProfileImages((prev) => ({
       ...prev,
-      [selectedPersonality]: initialProfile,
+      [selectedPersonality]: { gender, profile: gender },
     }));
     const now = new Date();
     const timestamp = now.toLocaleString("ko-KR", {
@@ -290,7 +294,7 @@ const Chatbot = () => {
     const newConversation = {
       title: timestamp,
       messages: [initialMessage],
-      messageImages: [getProfileImage(0, initialProfile, selectedPersonality)],
+      messageImages: [getProfileImage(0, gender, selectedPersonality)],
       mode: selectedPersonality,
       username: username,
     };
@@ -305,7 +309,7 @@ const Chatbot = () => {
     setConversations(newConversations);
     setCurrentConversation(docRef.id);
     setMessages([initialMessage]);
-    setMessageImages([getProfileImage(0, initialProfile, selectedPersonality)]);
+    setMessageImages([getProfileImage(0, gender, selectedPersonality)]);
 
     // 대화 제목 업데이트
     const title = await getChatTitle([initialMessage]);

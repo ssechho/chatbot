@@ -49,10 +49,10 @@ const profileImages = {
   },
 };
 
-export const getProfileImage = (index, defaultProfile, mode) => {
-  const gender = defaultProfile === "boy" ? "boy" : "girl";
+export const getProfileImage = (index, gender, mode) => {
   if (index === 0) {
-    return `/images/profile_${mode}/${gender}_default.png`;
+    return profileImages[`${mode}_default`][gender];
   }
-  return `/images/profile_${mode}/${gender}_${(index - 1) % 5}.png`;
+  const profileOptions = profileImages[mode][gender];
+  return profileOptions[(index - 1) % profileOptions.length];
 };
