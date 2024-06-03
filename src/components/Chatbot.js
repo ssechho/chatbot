@@ -112,7 +112,16 @@ const Chatbot = () => {
         body: JSON.stringify({ messages: userMessages }),
       });
 
+      if (!response.ok) {
+        throw new Error("Failed to fetch the title from API");
+      }
+
       const data = await response.json();
+
+      if (!data || !data.title) {
+        throw new Error("Invalid response format");
+      }
+
       return data.title;
     } catch (error) {
       console.error("Error generating title:", error);
@@ -257,7 +266,7 @@ const Chatbot = () => {
         parts: [{ text: personalities[selectedPersonality] }],
       };
       const newConversation = {
-        title: timestamp, // 임시 제목
+        title: timestamp,
         messages: [initialMessage],
         messageImages: [
           getProfileImage(0, initialProfile, selectedPersonality),

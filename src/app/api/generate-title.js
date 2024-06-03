@@ -26,6 +26,7 @@ export default async function handler(req, res) {
     });
 
     const title = completion.data.choices[0].message.content.trim();
+    console.log("Generated title:", title); // 콘솔 로그 추가
     res.status(200).json({ title });
   } catch (error) {
     console.error("Error generating title:", error);
