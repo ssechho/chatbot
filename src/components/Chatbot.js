@@ -86,11 +86,15 @@ const Chatbot = () => {
   };
 
   const getChatTitle = async (messages) => {
-    const userMessages = messages
-      .filter((msg) => msg.role === "user")
-      .map((msg) => msg.parts.map((part) => part.text).join(" "))
-      .join(" ");
-    if (userMessages.length < 20) {
+    const allMessages = messages
+      .map((msg) => {
+        const role = msg.role === "user" ? "User" : "Assistant";
+        const content = msg.parts.map((part) => part.text).join(" ");
+        return `${role}: ${content}`;
+      })
+      .join("\n");
+
+    if (allMessages.length < 20) {
       const now = new Date();
       return now.toLocaleString("ko-KR", {
         year: "numeric",
@@ -103,13 +107,13 @@ const Chatbot = () => {
     }
 
     try {
-      console.log("Sending API request with messages:", userMessages);
+      console.log("Sending API request with messages:", allMessages);
       const response = await fetch("/api/generate-title", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messages: userMessages }),
+        body: JSON.stringify({ messages: allMessages }),
       });
 
       if (!response.ok) {

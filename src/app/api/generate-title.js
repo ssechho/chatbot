@@ -6,12 +6,14 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-export default async function handler(req, res) {
+export async function POST(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
+    return new Response(JSON.stringify({ message: "Method not allowed" }), {
+      status: 405,
+    });
   }
 
-  const { messages } = req.body;
+  const { messages } = await req.json();
   console.log("Received messages for title generation:", messages);
 
   try {
@@ -28,9 +30,13 @@ export default async function handler(req, res) {
 
     const title = completion.data.choices[0].message.content.trim();
     console.log("Generated title:", title);
-    res.status(200).json({ title });
+    return new Response(JSON.stringify({ title }), {
+      status: 200,
+    });
   } catch (error) {
     console.error("Error generating title:", error);
-    res.status(500).json({ message: "Error generating title" });
+    return new Response(JSON.stringify({ message: "Error generating title" }), {
+      status: 500,
+    });
   }
 }
