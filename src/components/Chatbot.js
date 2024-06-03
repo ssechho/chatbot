@@ -116,6 +116,8 @@ const Chatbot = () => {
         body: JSON.stringify({ messages: allMessages }),
       });
 
+      console.log("API response status:", response.status);
+
       if (!response.ok) {
         throw new Error("Failed to fetch the title from API");
       }
