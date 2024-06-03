@@ -29,6 +29,15 @@ const apiUrls = {
   funny: "/api/funny",
 };
 
+const generateRandomUsername = () => {
+  const adjectives = ["Brave", "Clever", "Witty", "Kind", "Curious"];
+  const nouns = ["Lion", "Wizard", "Unicorn", "Phoenix", "Dragon"];
+  const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  const number = Math.floor(Math.random() * 1000);
+  return `${adjective}${noun}${number}`;
+};
+
 const Chatbot = () => {
   const router = useRouter();
   const [messages, setMessages] = useState([]);
@@ -85,15 +94,13 @@ const Chatbot = () => {
   };
 
   const getChatTitle = async (messages) => {
-    const allMessages = messages
-      .map((msg) => {
-        const role = msg.role === "user" ? "User" : "Assistant";
-        const content = msg.parts.map((part) => part.text).join(" ");
-        return `${role}: ${content}`;
-      })
-      .join("\n");
+    const allMessages = messages.map((msg) => {
+      const role = msg.role === "user" ? "User" : "Assistant";
+      const content = msg.parts.map((part) => part.text).join(" ");
+      return { role: msg.role, content };
+    });
 
-    if (allMessages.length < 20) {
+    if (allMessages.length < 2) {
       const now = new Date();
       return now.toLocaleString("ko-KR", {
         year: "numeric",
@@ -194,6 +201,14 @@ const Chatbot = () => {
         messageImages: [...updatedMessageImages, updatedResultImage],
         title: title,
       });
+      // 사이드바 대화 목록 업데이트
+      setConversations((prevConversations) =>
+        prevConversations.map((conversation) =>
+          conversation.id === currentConversation
+            ? { ...conversation, title: title }
+            : conversation
+        )
+      );
     }
 
     setLoading(false);
@@ -266,48 +281,42 @@ const Chatbot = () => {
       minute: "2-digit",
       second: "2-digit",
     });
-    if (session?.user?.name) {
-      const initialMessage = {
-        role: "assistant",
-        parts: [{ text: personalities[selectedPersonality] }],
-      };
-      const newConversation = {
-        title: timestamp,
-        messages: [initialMessage],
-        messageImages: [
-          getProfileImage(0, initialProfile, selectedPersonality),
-        ],
-        mode: selectedPersonality,
-        username: session.user.name,
-      };
-      const docRef = await addDoc(
-        collection(db, "conversations"),
-        newConversation
-      );
-      const newConversations = [
-        ...conversations,
-        { id: docRef.id, ...newConversation },
-      ];
-      setConversations(newConversations);
-      setCurrentConversation(docRef.id);
-      setMessages([initialMessage]);
-      setMessageImages([
-        getProfileImage(0, initialProfile, selectedPersonality),
-      ]);
+    const username = session?.user?.name || generateRandomUsername();
 
-      // 대화 제목 업데이트
-      const title = await getChatTitle([initialMessage]);
-      await updateDoc(docRef, { title: title });
-      setConversations((prevConversations) =>
-        prevConversations.map((conversation) =>
-          conversation.id === docRef.id
-            ? { ...conversation, title: title }
-            : conversation
-        )
-      );
-    } else {
-      console.error("Username is undefined.");
-    }
+    const initialMessage = {
+      role: "assistant",
+      parts: [{ text: personalities[selectedPersonality] }],
+    };
+    const newConversation = {
+      title: timestamp,
+      messages: [initialMessage],
+      messageImages: [getProfileImage(0, initialProfile, selectedPersonality)],
+      mode: selectedPersonality,
+      username: username,
+    };
+    const docRef = await addDoc(
+      collection(db, "conversations"),
+      newConversation
+    );
+    const newConversations = [
+      ...conversations,
+      { id: docRef.id, ...newConversation },
+    ];
+    setConversations(newConversations);
+    setCurrentConversation(docRef.id);
+    setMessages([initialMessage]);
+    setMessageImages([getProfileImage(0, initialProfile, selectedPersonality)]);
+
+    // 대화 제목 업데이트
+    const title = await getChatTitle([initialMessage]);
+    await updateDoc(docRef, { title: title });
+    setConversations((prevConversations) =>
+      prevConversations.map((conversation) =>
+        conversation.id === docRef.id
+          ? { ...conversation, title: title }
+          : conversation
+      )
+    );
   };
 
   const deleteConversation = async (conversationId) => {
