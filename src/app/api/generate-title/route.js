@@ -1,10 +1,9 @@
-import { Configuration, OpenAIApi } from "openai";
+const { OpenAI } = require("openai");
 
-const configuration = new Configuration({
+// OpenAI API 키 설정
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-const openai = new OpenAIApi(configuration);
 
 export async function POST(req) {
   if (req.method !== "POST") {
@@ -13,25 +12,34 @@ export async function POST(req) {
     });
   }
 
-  const { messages } = await req.json();
-  console.log("Received messages for title generation:", messages);
+  const data = await req.json();
+  console.log("Received messages for title generation:", data.messages);
 
+  // 메시지 히스토리를 OpenAI 포맷에 맞게 변환
+  const messages = data.messages.map((msg) => ({
+    role: msg.role === "user" ? "user" : "assistant",
+    content: msg,
+  }));
+
+  // OpenAI API 호출
   try {
-    const completion = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         {
           role: "user",
-          content: `Summarize the following conversation in a short title: ${messages}`,
+          content: `Summarize the following conversation in a short title: ${data.messages}`,
         },
       ],
+      temperature: 0.7,
     });
 
-    const title = completion.data.choices[0].message.content.trim();
+    const title = response.choices[0].message.content.trim();
     console.log("Generated title:", title);
+
     return new Response(JSON.stringify({ title }), {
-      status: 200,
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Error generating title:", error);
