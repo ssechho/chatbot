@@ -4,7 +4,7 @@
 
 /* Global Styles */
 body {
-  @apply bg-neutral-900 text-gray-900;
+  @apply bg-neutral-900 text-neutral-300;
 }
 
 /* Button Styles */

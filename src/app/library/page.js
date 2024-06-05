@@ -32,15 +32,25 @@ export default function Library() {
 return (
   <>
       <div className="fixed top-0 left-0 right-0 z-10 h-[50px] sm:h-[60px] py-2 px-2 sm:px-8 bg-black flex items-center justify-between">
-        <div className="font-bold text-3xl flex text-center items-end">
-          <Link href="/" className="text-red-500 hover:opacity-50">
-            CHATFLIX
-          </Link>
-          <Link href="/library" className="ml-6 text-neutral-200 text-lg hover:opacity-50">
-            Library
-          </Link>
-        </div>
-        {/* <RealtimeSearch /> */}
+      <div className="flex text-center items-end">
+        <Link href="/" className="text-red-500 font-bold text-3xl hover:opacity-50">
+          CHATFLIX
+        </Link>
+        <Link href="/library" className="ml-6 text-neutral-200 font-bold text-lg hover:opacity-50">
+          Library
+        </Link>
+      </div>
+      <Link href="/login" className={`w-28
+                  p-1 
+                  text-neutral-300
+                  border border-neutral-300 rounded
+                  hover:bg-neutral-800
+                  ml-auto
+                  text-center
+                  flex items-center justify-center`}>
+        마이 페이지
+      </Link>
+      {/* <RealtimeSearch /> */}
       </div>
 
       <div className="p-4">
