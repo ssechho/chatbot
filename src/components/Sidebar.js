@@ -10,13 +10,13 @@ const Sidebar = ({
   }, [conversations]);
 
   return (
-    <div className="w-1/4 h-screen bg-black p-4">
-      <h2 className="text-xl mb-4 ml-4 text-neutral-200">Conversations</h2>
+    <div className="w-1/4 h-screen bg-neutral-950 p-4">
+      <h2 className="text-xl mb-5 ml-5 text-neutral-200">Conversations</h2>
       <ul>
         {conversations.map((conversation, index) => (
           <li
             key={index}
-            className="p-2 flex justify-between items-center cursor-pointer hover:bg-gray-200"
+            className="p-2 mb-2 ml-4 flex justify-between items-center cursor-pointer hover:bg-neutral-900"
             onClick={() => onSelectConversation(conversation.id)} // ID를 전달
           >
             <span className="text-white">{conversation.title}</span>
@@ -27,7 +27,7 @@ const Sidebar = ({
                 onDeleteConversation(conversation.id);
               }}
             >
-              삭제
+              <img src="/images/deleteIcon.svg" alt="Delete" />
             </button>
           </li>
         ))}

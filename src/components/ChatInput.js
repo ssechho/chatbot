@@ -52,7 +52,7 @@ export const ChatInput = ({ onSendMessage }) => {
     <div className="relative">
       <textarea
         ref={textareaRef}
-        className="min-h-[44px] rounded-lg pl-4 pr-12 py-2 w-full focus:outline-none focus:ring-1 focus:ring-neutral-300 border-2 bg-neutral-900 text-white border-neutral-300"
+        className="min-h-[44px] rounded-lg pl-4 pr-12 py-2 w-full focus:outline-none focus:ring-1 focus:ring-neutral-300 border-1 bg-neutral-900 text-white border-neutral-300"
         style={{ resize: "none" }}
         placeholder="메시지를 입력하세요"
         value={content}
