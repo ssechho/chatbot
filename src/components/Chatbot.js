@@ -208,7 +208,7 @@ const Chatbot = () => {
         messageImages: [...updatedMessageImages, updatedResultImage],
         title: title,
       });
-      
+
       // 답변에서 <> 사이의 단어들을 추출하여 Firebase에 저장
       const extracted = extractWordsFromMessage(result.parts[0].text);
       if (extracted.length > 0) {
@@ -223,7 +223,7 @@ const Chatbot = () => {
           conversationId: currentConversation,
           words: extracted,
         });
-      }      
+      }
 
       // 사이드바 대화 목록 업데이트
       setConversations((prevConversations) =>
@@ -297,7 +297,6 @@ const Chatbot = () => {
     }
   };
 
-
   const handleSetPersonality = async (selectedPersonality) => {
     setPersonality(selectedPersonality);
     const gender = Math.random() > 0.5 ? "boy" : "girl";
@@ -357,7 +356,10 @@ const Chatbot = () => {
       await deleteDoc(doc(db, "conversations", conversationId));
 
       // Firebase에서 추출된 단어 삭제
-      const q = query(collection(db, "extractedWords"), where("conversationId", "==", conversationId));
+      const q = query(
+        collection(db, "extractedWords"),
+        where("conversationId", "==", conversationId)
+      );
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
         deleteDoc(doc.ref);

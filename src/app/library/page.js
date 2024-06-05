@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Chatbot from "@/components/Chatbot";
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
 import { db } from "@/firebase";
@@ -27,7 +26,7 @@ export default function Library() {
   }, []);
 
   const handleConversationClick = (conversationId) => {
-    router.push(`/`);
+    router.push(`/?conversationId=${conversationId}`);
   };
 
   return (
