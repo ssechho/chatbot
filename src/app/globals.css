@@ -4,13 +4,13 @@
 
 /* Global Styles */
 body {
-  @apply bg-gray-100 text-gray-900;
+  @apply bg-neutral-900 text-gray-900;
 }
 
 /* Button Styles */
 .btn {
   @apply py-4 px-8 rounded-lg flex-col items-center justify-center gap-6 text-lg;
-  height: auto; /* Ensure height is flexible */
+  height: auto;
 }
 
 .btn-intellectual {
@@ -24,7 +24,7 @@ body {
 }
 
 .btn img {
-  @apply w-20 h-20; /* 사용자 정의 크기 */
+  @apply w-56 h-48; /* 사용자 정의 크기 */
 }
 
 .profile-image {
