@@ -4,6 +4,7 @@ const Sidebar = ({
   conversations,
   onSelectConversation,
   onDeleteConversation,
+  loading,  // 로딩 상태를 prop으로 추가
 }) => {
   useEffect(() => {
     localStorage.setItem("conversations", JSON.stringify(conversations));
@@ -32,6 +33,11 @@ const Sidebar = ({
           </li>
         ))}
       </ul>
+      {loading && (
+        <div className="flex justify-center items-center h-full">
+          <div className="loader"></div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
+import { ChatLoader } from "@/components/ChatLoader";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -170,7 +171,7 @@ const Chatbot = () => {
     setMessages(updatedMessages);
     setMessageImages(updatedMessageImages);
     setLoading(true);
-
+  
     const response = await fetch(apiUrls[personality], {
       method: "POST",
       headers: {
@@ -178,12 +179,12 @@ const Chatbot = () => {
       },
       body: JSON.stringify({ messages: updatedMessages.slice(1) }),
     });
-
+  
     if (!response.ok) {
       setLoading(false);
       throw new Error(response.statusText);
     }
-
+  
     const result = await response.json();
     const updatedResultMessage = result;
     const updatedResultImage = generateProfileImageForMessage(
@@ -192,13 +193,13 @@ const Chatbot = () => {
       defaultProfileImages[personality].gender,
       personality
     );
-
+  
     setMessages((messages) => [...messages, updatedResultMessage]);
     setMessageImages((images) => [...images, updatedResultImage]);
-
+    setLoading(false);
+  
     if (currentConversation !== null) {
       const conversationRef = doc(db, "conversations", currentConversation);
-      setLoading(false); // Stop loading before getting chat title
       const title = await getChatTitle([
         ...updatedMessages,
         updatedResultMessage,
@@ -217,14 +218,14 @@ const Chatbot = () => {
           { conversationId: currentConversation, words: extracted },
         ];
         setExtractedWords(newExtractedWords);
-
+  
         // Firebase에 저장
         await addDoc(collection(db, "extractedWords"), {
           conversationId: currentConversation,
           words: extracted,
         });
       }      
-
+  
       // 사이드바 대화 목록 업데이트
       setConversations((prevConversations) =>
         prevConversations.map((conversation) =>
@@ -233,8 +234,6 @@ const Chatbot = () => {
             : conversation
         )
       );
-    } else {
-      setLoading(false);
     }
   };
 
@@ -266,35 +265,36 @@ const Chatbot = () => {
 
   const handleSelectConversation = async (conversationId) => {
     setLoading(true);
+    setCurrentConversation(conversationId);
+    
     const conversationRef = doc(db, "conversations", conversationId);
     const conversationDoc = await getDoc(conversationRef);
+  
     if (conversationDoc.exists()) {
       const conversationData = conversationDoc.data();
-      setCurrentConversation(conversationId);
-      setMessages(conversationData.messages || []);
-      setMessageImages(conversationData.messageImages || []);
-      setPersonality(conversationData.mode);
+      const messagesData = conversationData.messages || [];
+      const messageImagesData = conversationData.messageImages || [];
+      const mode = conversationData.mode;
+  
+      setMessages(messagesData);
+      setMessageImages(messageImagesData);
+      setPersonality(mode);
       setDefaultProfileImages((prev) => ({
         ...prev,
-        [conversationData.mode]: {
+        [mode]: {
           gender:
-            conversationData.messageImages &&
-            conversationData.messageImages[0] &&
-            conversationData.messageImages[0].includes("boy")
+            messageImagesData[0] && messageImagesData[0].includes("boy")
               ? "boy"
               : "girl",
           profile:
-            conversationData.messageImages &&
-            conversationData.messageImages[0] &&
-            conversationData.messageImages[0].includes("boy")
+            messageImagesData[0] && messageImagesData[0].includes("boy")
               ? "boy"
               : "girl",
         },
       }));
-      setLoading(false);
-    } else {
-      setLoading(false);
     }
+  
+    setLoading(false);
   };
 
 
@@ -428,77 +428,81 @@ const Chatbot = () => {
       </Link>
       {/* <RealtimeSearch /> */}
     </div>
-          
 
-        <div className="flex flex-1 pt-[50px] sm:pt-[60px]">
-          <Sidebar
-            conversations={conversations}
-            onSelectConversation={handleSelectConversation}
-            onDeleteConversation={deleteConversation}
-          />
-          <div className="flex-1 flex flex-col bg-neutral-900 shadow">
-            <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
-              <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
-                {personality === null ? (
+
+      <div className="flex flex-1 pt-[50px] sm:pt-[60px]">
+        <Sidebar
+          conversations={conversations}
+          onSelectConversation={handleSelectConversation}
+          onDeleteConversation={deleteConversation}
+        />
+        <div className="flex-1 flex flex-col bg-neutral-900 shadow">
+          <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
+            <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
+              {loading ? (
+                <div className="flex justify-center items-center h-full">
+                  <div className="loader"></div>
+                </div>
+              ) : (
+                personality === null ? (
                   <div className="flex flex-col items-center">
                     <h2 className="text-2xl mb-12 text-neutral-200">
                       새로운 주제로 대화를 시작해보세요.
                     </h2>
                     <div className="flex space-x-20">
-                    <button
-                      className="btn btn-intellectual h-[400px] w-[300px] flex flex-col items-center justify-center border-4 border-orange-500 hover:border-gradient-to-r from-orange-500 to-yellow-500"
-                      onClick={() => handleSetPersonality("intellectual")}
-                    >
-                      <div className="flex-1 flex items-center justify-center w-full">
-                        <img
-                          src="/images/profile_intellectual/intellectualset.png"
-                          alt="intellectual"
-                          className="object-cover h-full w-full"
-                        />
-                      </div>
-                      <span>안경 척! 모드</span>
-                    </button>
-                    <button
-                      className="btn btn-funny h-[400px] w-[300px] flex flex-col items-center justify-center border-4 border-orange-500 hover:border-gradient-to-r from-orange-500 to-yellow-500"
-                      onClick={() => handleSetPersonality("funny")}
-                    >
-                      <div className="flex-1 flex items-center justify-center w-full">
-                        <img
-                          src="/images/profile_funny/funnyset.png"
-                          alt="funny"
-                          className="object-cover h-full w-full"
-                        />
-                      </div>
-                      <span>주접이 모드</span>
-                    </button>
+                      <button
+                        className="btn btn-intellectual h-[400px] w-[300px] flex flex-col items-center justify-center border-4 border-orange-500 hover:border-gradient-to-r from-orange-500 to-yellow-500"
+                        onClick={() => handleSetPersonality("intellectual")}
+                      >
+                        <div className="flex-1 flex items-center justify-center w-full">
+                          <img
+                            src="/images/profile_intellectual/intellectualset.png"
+                            alt="intellectual"
+                            className="object-cover h-full w-full"
+                          />
+                        </div>
+                        <span>안경 척! 모드</span>
+                      </button>
+                      <button
+                        className="btn btn-funny h-[400px] w-[300px] flex flex-col items-center justify-center border-4 border-orange-500 hover:border-gradient-to-r from-orange-500 to-yellow-500"
+                        onClick={() => handleSetPersonality("funny")}
+                      >
+                        <div className="flex-1 flex items-center justify-center w-full">
+                          <img
+                            src="/images/profile_funny/funnyset.png"
+                            alt="funny"
+                            className="object-cover h-full w-full"
+                          />
+                        </div>
+                        <span>주접이 모드</span>
+                      </button>
                     </div>
                   </div>
-  
-                  ) : (
-                    <Chat
-                      messages={messages}
-                      messageImages={messageImages}
-                      loading={loading}
-                      onSendMessage={handleSend}
-                      mode={personality}
-                    />
-                  )}
-                  <div ref={messagesEndRef} />
-                  </div>
+                ) : (
+                  <Chat
+                    messages={messages}
+                    messageImages={messageImages}
+                    loading={false}  // 챗을 주고받을 때는 로딩 상태를 false로 유지합니다
+                    onSendMessage={handleSend}
+                    mode={personality}
+                  />
+                )
+              )}
+              <div ref={messagesEndRef} />
             </div>
-            {personality !== null && (
-              <div className="flex h-[30px] sm:h-[50px] border-t border-neutral-300 py-2 px-8 items-center sm:justify-between justify-center">
-                <button
-                  onClick={handleNewConversation}
-                  className="btn btn-primary text-white"
-                >
-                  New Conversation
-                </button>
-              </div>
-            )}
           </div>
-
+          {personality !== null && (
+            <div className="flex h-[30px] sm:h-[50px] border-t border-neutral-300 py-2 px-8 items-center sm:justify-between justify-center">
+              <button
+                onClick={handleNewConversation}
+                className="btn btn-primary text-white"
+              >
+                New Conversation
+              </button>
+            </div>
+          )}
         </div>
+      </div>
     </>
   );
 };
