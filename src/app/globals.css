@@ -4,7 +4,7 @@
 
 /* Global Styles */
 body {
-  @apply bg-neutral-900 text-gray-900;
+  @apply bg-neutral-900 text-neutral-300;
 }
 
 /* Button Styles */
@@ -85,4 +85,9 @@ body {
 
 .realtime-search-hover li:last-child {
   border-bottom: none;
+}
+
+.btn-new-conversation {
+  @apply bg-red-500 text-white hover:bg-red-700 py-2 px-4 w-full text-left;
+  border-radius: 0;
 }
