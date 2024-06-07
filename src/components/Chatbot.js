@@ -213,18 +213,40 @@ const Chatbot = () => {
       // 답변에서 <> 사이의 단어들을 추출하여 Firebase에 저장
       const extracted = extractWordsFromMessage(result.parts[0].text);
       if (extracted.length > 0) {
-        const newExtractedWords = [
-          ...extractedWords,
-          { conversationId: currentConversation, words: extracted },
-        ];
-        setExtractedWords(newExtractedWords);
+        // 기존 데이터 조회
+        const existingWordsRef = collection(db, "extractedWords");
+        const queryRef = query(existingWordsRef, where('username', '==', session?.user?.name), where('words', '==', extracted));
+        
+        const existingWordsSnapshot = await getDocs(queryRef);
 
-        // Firebase에 저장
-        await addDoc(collection(db, "extractedWords"), {
-          conversationId: currentConversation,
-          words: extracted,
-          username: session?.user?.name,
-        });
+        // 기존 데이터가 존재하는 경우
+        if (!existingWordsSnapshot.empty) {
+          const existingWordsData = existingWordsSnapshot.docs.map(doc => doc.data());
+          const existingConversationIds = existingWordsData.map(data => data.conversationId || []);
+
+          // 새로운 conversationId 추가
+          const newConversationId = currentConversation;
+          const updatedConversationIds = [...existingConversationIds[0], newConversationId];
+
+          // 기존 데이터 업데이트
+          await updateDoc(existingWordsSnapshot.docs[0].ref, {
+            conversationId: updatedConversationIds,
+          });
+        } else {
+          // 기존 데이터가 없는 경우
+          const newExtractedWords = [
+            ...extractedWords,
+            { conversationId: [currentConversation], words: extracted },
+          ];
+          setExtractedWords(newExtractedWords);
+
+          // Firebase에 저장
+          await addDoc(collection(db, "extractedWords"), {
+            conversationId: [currentConversation],
+            words: extracted,
+            username: session?.user?.name,
+          });
+        }
       }
 
       // 사이드바 대화 목록 업데이트
