@@ -18,19 +18,23 @@ export default function Library() {
 
   useEffect(() => {
     const fetchExtractedWords = async () => {
-      // 세션 로딩 중에는 데이터를 가져오지 않도록 처리합니다.
-      if (status === "loading") return;
+      // 세션 로딩 중이거나 세션이 없는 경우 데이터를 가져오지 않도록 처리합니다.
+      if (status === "loading" || !session?.user?.name) return;
 
-      // Firestore 쿼리 설정
-      const extractedWordsRef = collection(db, "extractedWords");
-      const q = query(extractedWordsRef, where("username", "==", session?.user?.name));
-      const querySnapshot = await getDocs(q);
+      try {
+        // Firestore 쿼리 설정
+        const extractedWordsRef = collection(db, "extractedWords");
+        const q = query(extractedWordsRef, where("username", "==", session.user.name));
+        const querySnapshot = await getDocs(q);
 
-      const words = [];
-      querySnapshot.forEach((doc) => {
-        words.push({ id: doc.id, ...doc.data() });
-      });
-      setExtractedWords(words);
+        const words = [];
+        querySnapshot.forEach((doc) => {
+          words.push({ id: doc.id, ...doc.data() });
+        });
+        setExtractedWords(words);
+      } catch (error) {
+        console.error("Error fetching extracted words: ", error);
+      }
     };
 
     fetchExtractedWords();
@@ -73,7 +77,7 @@ export default function Library() {
                 {item.conversationId.map((conversationId) => (
                   <Link
                     key={conversationId}
-                    href={`/?conversationId=${conversationId}`}
+                    href={`/?conversationID=${conversationId}`}
                     className="text-red-500 hover:underline block"
                   >
                     언급된 대화
@@ -87,5 +91,6 @@ export default function Library() {
     </>
   );
 };
+
 
 
