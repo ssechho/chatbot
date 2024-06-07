@@ -14,7 +14,7 @@ export default function Library() {
 
   useEffect(() => {
     const fetchExtractedWords = async () => {
-      const querySnapshot = await getDocs(collection(db, "extractedWords"));
+      const querySnapshot = await getDocs(collection(db, "extractedWords"), where("username", "==", session.user.name));
       const words = [];
       querySnapshot.forEach((doc) => {
         words.push({ id: doc.id, ...doc.data() });
