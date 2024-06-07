@@ -73,7 +73,7 @@ export default function Library() {
                 {item.conversationId.map((conversationId) => (
                   <Link
                     key={conversationId}
-                    href={`/conversation/${conversationId}`}
+                    href={`/?conversationId=${conversationId}`}
                     className="text-red-500 hover:underline block"
                   >
                     언급된 대화
