@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { Chat } from "@/components/Chat";
 import { ChatLoader } from "@/components/ChatLoader";
+import TrendingWords from "@/components/TrendingWords";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -50,6 +51,7 @@ const Chatbot = () => {
   const [personality, setPersonality] = useState(null);
   const [defaultProfileImages, setDefaultProfileImages] = useState({});
   const messagesEndRef = useRef(null);
+  const [trendingWords, setTrendingWords] = useState([]);
 
   const { data: session } = useSession({
     required: true,
@@ -236,17 +238,24 @@ const Chatbot = () => {
           const existingWordsSnapshot = await getDocs(queryRef);
 
           if (!existingWordsSnapshot.empty) {
-            // 문서가 존재하는 경우, 새로운 conversationId로 업데이트
+            // 문서가 존재하는 경우
             const doc = existingWordsSnapshot.docs[0];
             const existingData = doc.data();
 
-            // conversationId가 이미 존재하는지 확인
+            // 동일한 username과 word가 이미 존재하지만 conversationId가 다른 경우
             if (!existingData.conversationId.includes(currentConversation)) {
+              // conversationId에 현재 conversationId 추가
               const updatedConversationIds = [...existingData.conversationId, currentConversation];
 
-              // 기존 문서 업데이트
+              // 기존 문서 업데이트 및 timestamp 갱신
               await updateDoc(doc.ref, {
                 conversationId: updatedConversationIds,
+                timestamp: Date.now(),
+              });
+            } else {
+              // conversationId가 이미 존재하는 경우, timestamp만 갱신
+              await updateDoc(doc.ref, {
+                timestamp: Date.now(),
               });
             }
           } else {
@@ -255,12 +264,13 @@ const Chatbot = () => {
               conversationId: [currentConversation],
               word: word,
               username: session?.user?.name,
+              timestamp: Date.now(), // 최초 생성 시 timestamp 추가
             });
 
             // 로컬 상태 업데이트 (필요한 경우)
             setExtractedWords(prevWords => [
               ...prevWords,
-              { conversationId: [currentConversation], word: word },
+              { conversationId: [currentConversation], word: word }
             ]);
           }
         }
@@ -447,7 +457,7 @@ const Chatbot = () => {
   return (
     <>
       <Head>
-        <title>A Simple Chatbot</title>
+        <title>Chatflix</title>
         <meta name="description" content="A Simple Chatbot" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -461,6 +471,7 @@ const Chatbot = () => {
           <Link href="/library" className="ml-6 text-neutral-200 font-bold text-lg hover:opacity-50">
             Library
           </Link>
+          <TrendingWords trendingWords={trendingWords} />
         </div>
         <Link href="/login" className={`w-28
                   p-1 
@@ -472,7 +483,6 @@ const Chatbot = () => {
                   flex items-center justify-center`}>
           마이 페이지
         </Link>
-        {/* <RealtimeSearch /> */}
       </div>
 
       <div className="flex h-screen flex-1 pt-[50px] sm:pt-[60px]">
