@@ -30,7 +30,7 @@ export async function POST(req) {
         { role: "system", content: "You are a helpful assistant." },
         {
           role: "user",
-          content: `다음 대화를 바탕으로, 대화의 주요 주제를 반영한 10글자 내외의 간결한 제목을 한국어로 만들어 주세요. 대화에서 언급된 영화, 배우, 감독 등을 반드시 포함해 주세요: ${JSON.stringify(
+          content: `다음 대화를 바탕으로, 대화의 주요 주제를 반영한 10글자 이내의 간결한 제목을 한국어로 만들어 주세요. 대화에서 언급된 영화, 배우, 감독 등의 제목 또는 이름을 요약문에 반드시 포함해 주세요. '(안경 척!👓)'과 '(주접ㅎㅎ🥰)'이라는 문구는 요약문에 포함하지 마세요.: ${JSON.stringify(
             messages
           )}`,
         },
