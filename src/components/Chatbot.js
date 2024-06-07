@@ -223,7 +223,7 @@ const Chatbot = () => {
         await addDoc(collection(db, "extractedWords"), {
           conversationId: currentConversation,
           words: extracted,
-          username: username,
+          username: session?.user?.name,
         });
       }
 

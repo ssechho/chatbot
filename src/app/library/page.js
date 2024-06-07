@@ -1,20 +1,26 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
 import { db } from "@/firebase";
 import {
   collection,
   getDocs,
+  where,
 } from "firebase/firestore";
 
 export default function Library() {
   const [extractedWords, setExtractedWords] = useState([]);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchExtractedWords = async () => {
-      const querySnapshot = await getDocs(collection(db, "extractedWords"), where("username", "==", session.user.name));
+      // 세션 로딩 중에는 데이터를 가져오지 않도록 처리합니다.
+      if (status === "loading") return;
+
+      const querySnapshot = await getDocs(collection(db, "extractedWords"), where("username", "==", session?.user?.name));
       const words = [];
       querySnapshot.forEach((doc) => {
         words.push({ id: doc.id, ...doc.data() });
@@ -23,11 +29,14 @@ export default function Library() {
     };
 
     fetchExtractedWords();
-  }, []);
+  }, [session, status]); // 세션 및 상태 변경 시에만 useEffect가 호출되도록 합니다.
 
   const handleConversationClick = (conversationId) => {
     router.push(`/`);
   };
+
+  // 세션 로딩 중일 때는 로딩 스피너를 표시하거나 아무 것도 렌더링하지 않습니다.
+  if (status === "loading") return null;
 
 return (
   <>
