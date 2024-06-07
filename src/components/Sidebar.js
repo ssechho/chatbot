@@ -4,7 +4,8 @@ const Sidebar = ({
   conversations,
   onSelectConversation,
   onDeleteConversation,
-  loading,  // 로딩 상태를 prop으로 추가
+  onNewConversation,
+  loading,
 }) => {
   useEffect(() => {
     localStorage.setItem("conversations", JSON.stringify(conversations));
@@ -13,18 +14,24 @@ const Sidebar = ({
   return (
     <div className="w-1/4 h-screen bg-neutral-950 p-4">
       <h2 className="text-xl mb-5 ml-5 text-neutral-200">Conversations</h2>
+      <button
+        onClick={onNewConversation}
+        className="btn btn-new-conversation mb-4 w-full"
+      >
+        New Conversation
+      </button>
       <ul>
         {conversations.map((conversation, index) => (
           <li
             key={index}
             className="p-2 mb-2 ml-4 flex justify-between items-center cursor-pointer hover:bg-neutral-900"
-            onClick={() => onSelectConversation(conversation.id)} // ID를 전달
+            onClick={() => onSelectConversation(conversation.id)}
           >
             <span className="text-white">{conversation.title}</span>
             <button
               className="text-red-500 ml-2"
               onClick={(e) => {
-                e.stopPropagation(); // 클릭 이벤트가 상위 요소로 전파되지 않도록 함
+                e.stopPropagation();
                 onDeleteConversation(conversation.id);
               }}
             >
