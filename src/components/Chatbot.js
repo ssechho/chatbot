@@ -440,15 +440,15 @@ const Chatbot = () => {
         </Link>
       </div>
 
-      <div className="flex flex-1 pt-[50px] sm:pt-[60px]">
+      <div className="flex flex-1 pt-[50px] sm:pt-[60px] h-screen overflow-hidden">
         <Sidebar
           conversations={conversations}
           onSelectConversation={handleSelectConversation}
           onDeleteConversation={deleteConversation}
-          onNewConversation={handleNewConversation} // 추가된 부분
+          onNewConversation={handleNewConversation}
         />
-        <div className="flex-1 flex flex-col bg-neutral-900 shadow">
-          <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
+        <div className="flex-1 flex flex-col bg-neutral-900 shadow overflow-y-auto">
+          <div className="flex-1 overflow-y-auto sm:px-10 pb-4 sm:pb-10">
             <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
               {loading ? (
                 <div className="flex justify-center items-center h-full">
