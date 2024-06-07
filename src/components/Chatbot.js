@@ -378,24 +378,27 @@ const Chatbot = () => {
 
   const deleteConversation = async (conversationId) => {
     try {
+      // conversations 콜렉션에서 대화 삭제
       await deleteDoc(doc(db, "conversations", conversationId));
-
-      // Firebase에서 추출된 단어 삭제
-      const q = query(
-        collection(db, "extractedWords"),
-        where("conversationId", "==", conversationId)
-      );
+  
+      // extractedWords에서 conversationId가 포함된 문서들 조회
+      const q = query(collection(db, "extractedWords"), where("conversationId", "array-contains", conversationId));
       const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        deleteDoc(doc.ref);
+  
+      // 각 문서에 대해 conversationId 배열에서 삭제하고, 배열이 빈 배열이 되면 문서 삭제
+      querySnapshot.forEach(async (docSnapshot) => {
+        const docData = docSnapshot.data();
+        const updatedConversationIds = docData.conversationId.filter(id => id !== conversationId);
+  
+        if (updatedConversationIds.length > 0) {
+          await updateDoc(docSnapshot.ref, { conversationId: updatedConversationIds });
+        } else {
+          await deleteDoc(docSnapshot.ref);
+        }
       });
-
+  
       // 로컬 상태에서 대화 삭제
-      setConversations(
-        conversations.filter(
-          (conversation) => conversation.id !== conversationId
-        )
-      );
+      setConversations(conversations.filter(conversation => conversation.id !== conversationId));
       if (currentConversation === conversationId) {
         setCurrentConversation(null);
         setMessages([]);
@@ -405,6 +408,7 @@ const Chatbot = () => {
       console.error("Error deleting conversation:", error);
     }
   };
+  
 
   useEffect(() => {
     scrollToBottom();
