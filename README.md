@@ -1,3 +1,5 @@
-## A Simple Chatbot
+## 2024-1 웹프로그래밍 개론 - team 멋쟁이사자
 
-A Simple Chatbot using Google Gemini.
+CHATFLIX
+
+영화 덕질 친구
