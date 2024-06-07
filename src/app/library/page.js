@@ -72,7 +72,7 @@ export default function Library() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {extractedWords.map((item, index) => (
             <div key={index} className="p-4 rounded-lg shadow bg-neutral-800">
-              <h2 className="text-lg text-neutral-300">{item.words.join(", ")}</h2>
+              <h2 className="text-lg text-neutral-300">{item.words.join("\n")}</h2>
               <div>
                 {item.conversationId.map((conversationId) => (
                   <Link
