@@ -454,7 +454,7 @@ const Chatbot = () => {
         {/* <RealtimeSearch /> */}
       </div>
 
-      <div className="flex flex-1 pt-[50px] sm:pt-[60px]">
+      <div className="flex h-screen flex-1 pt-[50px] sm:pt-[60px]">
         <Sidebar
           conversations={conversations}
           onSelectConversation={handleSelectConversation}
