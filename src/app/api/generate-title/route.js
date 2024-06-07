@@ -25,7 +25,7 @@ export async function POST(req) {
 
     // OpenAI API 호출
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         {
