@@ -210,43 +210,58 @@ const Chatbot = () => {
         title: title,
       });
 
-      // 답변에서 <> 사이의 단어들을 추출하여 Firebase에 저장
+      // 메시지에서 <> 안의 단어들을 추출하는 함수
+      function extractWordsFromMessage(message) {
+        const regex = /<([^>]+)>/g;
+        let matches;
+        const words = [];
+        while ((matches = regex.exec(message)) !== null) {
+          words.push(matches[1]);
+        }
+        return words;
+      }
+
+      // 메시지에서 단어를 추출
       const extracted = extractWordsFromMessage(result.parts[0].text);
+
       if (extracted.length > 0) {
         for (const word of extracted) {
-          // 기존 데이터 조회
+          // "extractedWords" 컬렉션 참조
           const existingWordsRef = collection(db, "extractedWords");
+
+          // 동일한 username과 word를 가진 문서를 찾는 쿼리
           const queryRef = query(existingWordsRef, where('username', '==', session?.user?.name), where('word', '==', word));
-          
+
+          // 기존 문서 가져오기
           const existingWordsSnapshot = await getDocs(queryRef);
 
-          // 기존 데이터가 존재하는 경우
           if (!existingWordsSnapshot.empty) {
-            const existingWordsData = existingWordsSnapshot.docs.map(doc => doc.data());
-            const existingConversationIds = existingWordsData.map(data => data.conversationId || []);
+            // 문서가 존재하는 경우, 새로운 conversationId로 업데이트
+            const doc = existingWordsSnapshot.docs[0];
+            const existingData = doc.data();
 
-            // 새로운 conversationId 추가
-            const newConversationId = currentConversation;
-            const updatedConversationIds = [...existingConversationIds[0], newConversationId];
+            // conversationId가 이미 존재하는지 확인
+            if (!existingData.conversationId.includes(currentConversation)) {
+              const updatedConversationIds = [...existingData.conversationId, currentConversation];
 
-            // 기존 데이터 업데이트
-            await updateDoc(existingWordsSnapshot.docs[0].ref, {
-              conversationId: updatedConversationIds,
-            });
+              // 기존 문서 업데이트
+              await updateDoc(doc.ref, {
+                conversationId: updatedConversationIds,
+              });
+            }
           } else {
-            // 기존 데이터가 없는 경우
-            const newExtractedWords = [
-              ...extractedWords,
-              { conversationId: [currentConversation], word: word },
-            ];
-            setExtractedWords(newExtractedWords);
-
-            // Firebase에 저장
+            // 문서가 존재하지 않는 경우, 새로운 문서 생성
             await addDoc(collection(db, "extractedWords"), {
               conversationId: [currentConversation],
               word: word,
               username: session?.user?.name,
             });
+
+            // 로컬 상태 업데이트 (필요한 경우)
+            setExtractedWords(prevWords => [
+              ...prevWords,
+              { conversationId: [currentConversation], word: word },
+            ]);
           }
         }
       }
