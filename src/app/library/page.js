@@ -8,6 +8,7 @@ import {
   collection,
   getDocs,
   where,
+  query
 } from "firebase/firestore";
 
 export default function Library() {
@@ -20,7 +21,11 @@ export default function Library() {
       // 세션 로딩 중에는 데이터를 가져오지 않도록 처리합니다.
       if (status === "loading") return;
 
-      const querySnapshot = await getDocs(collection(db, "extractedWords"), where("username", "==", session?.user?.name));
+      // Firestore 쿼리 설정
+      const extractedWordsRef = collection(db, "extractedWords");
+      const q = query(extractedWordsRef, where("username", "==", session?.user?.name));
+      const querySnapshot = await getDocs(q);
+
       const words = [];
       querySnapshot.forEach((doc) => {
         words.push({ id: doc.id, ...doc.data() });
@@ -68,7 +73,7 @@ export default function Library() {
                 {item.conversationId.map((conversationId) => (
                   <Link
                     key={conversationId}
-                    href={`/?conversationId=${conversationId}`}
+                    href={`/conversation/${conversationId}`}
                     className="text-red-500 hover:underline block"
                   >
                     언급된 대화
