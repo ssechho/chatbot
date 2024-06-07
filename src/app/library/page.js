@@ -26,7 +26,7 @@ export default function Library() {
   }, []);
 
   const handleConversationClick = (conversationId) => {
-    router.push(`/?conversationId=${conversationId}`);
+    router.push(`/`);
   };
 
 return (
