@@ -68,7 +68,7 @@ const TrendingWords = () => {
 
   return (
     <div className="flex items-center space-x-4">
-      <h3 className="ml-6 text-neutral-200 font-bold text-lg hover:opacity-50">NOW HOT: </h3>
+      <h3 className="ml-5 text-neutral-200 font-bold text-lg hover:opacity-50">NOW HOT:</h3>
       <div className="relative" onMouseEnter={() => setIsPopupVisible(true)} onMouseLeave={() => setIsPopupVisible(false)}>
         <div className="h-6 overflow-auto bg-red-500 rounded-md absolute z-10" style={{ width: `${popupWidth}px`, height: `${popupHeight}px`, whiteSpace: 'nowrap', display: isPopupVisible ? 'block' : 'none', top: '0', left: '0' }}>
           {trendingWords.map((word, index) => (
