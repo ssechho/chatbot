@@ -50,6 +50,7 @@ const Chatbot = () => {
   const [currentConversation, setCurrentConversation] = useState(null);
   const [personality, setPersonality] = useState(null);
   const [defaultProfileImages, setDefaultProfileImages] = useState({});
+  const [userImage, setUserImage] = useState(""); // 사용자 이미지 상태 추가
   const messagesEndRef = useRef(null);
   const [trendingWords, setTrendingWords] = useState([]);
 
@@ -63,6 +64,10 @@ const Chatbot = () => {
   useEffect(() => {
     if (session) {
       loadConversations();
+      // 카카오 프로필 이미지 설정
+      if (session.user.image) {
+        setUserImage(session.user.image);
+      }
     }
   }, [session]);
 
@@ -232,7 +237,11 @@ const Chatbot = () => {
           const existingWordsRef = collection(db, "extractedWords");
 
           // 동일한 username과 word를 가진 문서를 찾는 쿼리
-          const queryRef = query(existingWordsRef, where('username', '==', session?.user?.name), where('word', '==', word));
+          const queryRef = query(
+            existingWordsRef,
+            where("username", "==", session?.user?.name),
+            where("word", "==", word)
+          );
 
           // 기존 문서 가져오기
           const existingWordsSnapshot = await getDocs(queryRef);
@@ -245,7 +254,10 @@ const Chatbot = () => {
             // 동일한 username과 word가 이미 존재하지만 conversationId가 다른 경우
             if (!existingData.conversationId.includes(currentConversation)) {
               // conversationId에 현재 conversationId 추가
-              const updatedConversationIds = [...existingData.conversationId, currentConversation];
+              const updatedConversationIds = [
+                ...existingData.conversationId,
+                currentConversation,
+              ];
 
               // 기존 문서 업데이트 및 timestamp 갱신
               await updateDoc(doc.ref, {
@@ -268,9 +280,9 @@ const Chatbot = () => {
             });
 
             // 로컬 상태 업데이트 (필요한 경우)
-            setExtractedWords(prevWords => [
+            setExtractedWords((prevWords) => [
               ...prevWords,
-              { conversationId: [currentConversation], word: word }
+              { conversationId: [currentConversation], word: word },
             ]);
           }
         }
@@ -405,25 +417,36 @@ const Chatbot = () => {
     try {
       // conversations 콜렉션에서 대화 삭제
       await deleteDoc(doc(db, "conversations", conversationId));
-  
+
       // extractedWords에서 conversationId가 포함된 문서들 조회
-      const q = query(collection(db, "extractedWords"), where("conversationId", "array-contains", conversationId));
+      const q = query(
+        collection(db, "extractedWords"),
+        where("conversationId", "array-contains", conversationId)
+      );
       const querySnapshot = await getDocs(q);
-  
+
       // 각 문서에 대해 conversationId 배열에서 삭제하고, 배열이 빈 배열이 되면 문서 삭제
       querySnapshot.forEach(async (docSnapshot) => {
         const docData = docSnapshot.data();
-        const updatedConversationIds = docData.conversationId.filter(id => id !== conversationId);
-  
+        const updatedConversationIds = docData.conversationId.filter(
+          (id) => id !== conversationId
+        );
+
         if (updatedConversationIds.length > 0) {
-          await updateDoc(docSnapshot.ref, { conversationId: updatedConversationIds });
+          await updateDoc(docSnapshot.ref, {
+            conversationId: updatedConversationIds,
+          });
         } else {
           await deleteDoc(docSnapshot.ref);
         }
       });
-  
+
       // 로컬 상태에서 대화 삭제
-      setConversations(conversations.filter(conversation => conversation.id !== conversationId));
+      setConversations(
+        conversations.filter(
+          (conversation) => conversation.id !== conversationId
+        )
+      );
       if (currentConversation === conversationId) {
         setCurrentConversation(null);
         setMessages([]);
@@ -433,7 +456,6 @@ const Chatbot = () => {
       console.error("Error deleting conversation:", error);
     }
   };
-  
 
   useEffect(() => {
     scrollToBottom();
@@ -465,24 +487,42 @@ const Chatbot = () => {
 
       <div className="fixed top-0 left-0 right-0 z-10 h-[50px] sm:h-[60px] py-2 px-2 sm:px-8 bg-black flex items-center justify-between">
         <div className="flex text-center items-end">
-          <Link href="/" className="text-red-500 font-bold text-3xl hover:opacity-50">
+          <Link
+            href="/"
+            className="text-red-500 font-bold text-3xl hover:opacity-50"
+          >
             CHATFLIX
           </Link>
-          <Link href="/library" className="ml-6 text-neutral-200 font-bold text-lg hover:opacity-50">
+          <Link
+            href="/library"
+            className="ml-6 text-neutral-200 font-bold text-lg hover:opacity-50"
+          >
             Library
           </Link>
           <TrendingWords trendingWords={trendingWords} />
         </div>
-        <Link href="/login" className={`w-28
+        <div className="flex items-center ml-auto">
+          {userImage && (
+            <img
+              src={userImage}
+              alt="User profile"
+              className="w-8 h-8 rounded-full mr-2" // 적절한 크기로 설정
+            />
+          )}
+          <Link
+            href="/login"
+            className={`w-28
                   p-1 
                   text-neutral-300
                   border border-neutral-300 rounded
                   hover:bg-neutral-800
-                  ml-auto
+                  ml-4
                   text-center
-                  flex items-center justify-center`}>
-          마이 페이지
-        </Link>
+                  flex items-center justify-center`}
+          >
+            마이 페이지
+          </Link>
+        </div>
       </div>
 
       <div className="flex h-screen flex-1 pt-[50px] sm:pt-[60px]">
@@ -533,11 +573,11 @@ const Chatbot = () => {
                 <Chat
                   messages={messages}
                   messageImages={messageImages}
-                  loading={false}  // 챗을 주고받을 때는 로딩 상태를 false로 유지합니다
+                  userImage={userImage} // userImage prop 전달
+                  loading={false} // 챗을 주고받을 때는 로딩 상태를 false로 유지합니다
                   onSendMessage={handleSend}
                   mode={personality}
                 />
-
               )}
               <div ref={messagesEndRef} />
             </div>

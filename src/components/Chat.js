@@ -6,6 +6,7 @@ import { ChatBubble } from "./ChatBubble";
 export const Chat = ({
   messages,
   messageImages = [],
+  userImage,
   loading,
   onSendMessage,
   mode,
@@ -15,18 +16,25 @@ export const Chat = ({
       {messages.map((message, index) => (
         <div
           key={index}
-          className={`chat-message my-1 sm:my-1.5 flex ${
-            message.role === "assistant" ? "items-start" : "items-end"
+          className={`chat-message my-1 sm:my-1.5 ${
+            message.role === "assistant" ? "assistant-message" : "user-message"
           }`}
         >
           {message.role === "assistant" && messageImages[index] && (
             <img
               src={messageImages[index]}
               alt="profile"
-              className="profile-image"
+              className="profile-image assistant-profile-image"
             />
           )}
           <ChatBubble message={message} />
+          {message.role === "user" && userImage && (
+            <img
+              src={userImage}
+              alt="profile"
+              className="profile-image user-profile-image"
+            />
+          )}
         </div>
       ))}
       {loading && (
