@@ -35,14 +35,8 @@ const TrendingWords = () => {
         const topTrendingWords = sortedWords.slice(0, 10).map(([word], index) => `${index + 1}` +`\xa0\xa0\xa0\xa0\xa0\xa0\xa0` + `${word}`);
 
         // 최대 단어 길이를 계산하여 팝업 박스의 너비 설정
-        const maxWidth = sortedWords.reduce((max, [word], index) => {
-          // Create the combined string with index, spaces, and word
-          const combinedString = `${index + 1}` + `\xa0\xa0\xa0\xa0\xa0\xa0\xa0` + `${word}`;
-          // Calculate the length of the combined string
-          return Math.max(max, combinedString.length);
-        }, 0);
-        const popupWidth = Math.max(maxWidth * 10, 200);
-        setPopupWidth(popupWidth);
+        const maxWidth = sortedWords.reduce((max, [word]) => Math.max(max, word.length), 0);
+        setPopupWidth(maxWidth * 15 - 10);
 
         // 모든 단어를 담을 수 있도록 팝업 박스의 높이 설정
         setPopupHeight(topTrendingWords.length * 28.5);

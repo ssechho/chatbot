@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import TrendingWords from "@/components/TrendingWords";
 import { db } from "@/firebase";
 import { collection, getDocs, where, query } from "firebase/firestore";
 
@@ -12,7 +11,6 @@ export default function Library() {
   const [userImage, setUserImage] = useState(""); // 사용자 이미지 상태 추가
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [trendingWords, setTrendingWords] = useState([]);
 
   useEffect(() => {
     const fetchExtractedWords = async () => {
@@ -69,7 +67,6 @@ export default function Library() {
           >
             Library
           </Link>
-          <TrendingWords trendingWords={trendingWords} />
         </div>
         <div className="flex items-center ml-auto">
           {userImage && (
@@ -88,9 +85,11 @@ export default function Library() {
                     hover:bg-neutral-800
                     ml-auto
                     text-center
-                    flex items-center justify-center`}>
-          마이 페이지
-        </Link>
+                    flex items-center justify-center`}
+          >
+            마이 페이지
+          </Link>
+        </div>
         {/* <RealtimeSearch /> */}
       </div>
 

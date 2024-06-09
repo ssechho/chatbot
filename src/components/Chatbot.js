@@ -456,7 +456,6 @@ const Chatbot = () => {
       console.error("Error deleting conversation:", error);
     }
   };
-  
 
   useEffect(() => {
     scrollToBottom();
@@ -502,12 +501,22 @@ const Chatbot = () => {
           </Link>
           <TrendingWords trendingWords={trendingWords} />
         </div>
-        <Link href="/login" className={`w-28
+        <div className="flex items-center ml-auto">
+          {userImage && (
+            <img
+              src={userImage}
+              alt="User profile"
+              className="w-8 h-8 rounded-full mr-2" // 적절한 크기로 설정
+            />
+          )}
+          <Link
+            href="/login"
+            className={`w-28
                   p-1 
                   text-neutral-300
                   border border-neutral-300 rounded
                   hover:bg-neutral-800
-                  ml-4
+                  ml-auto
                   text-center
                   flex items-center justify-center`}
           >
@@ -515,35 +524,6 @@ const Chatbot = () => {
           </Link>
         </div>
       </div>
-
-      {/* 인포메이션 팝업 */}
-      {isInfoOpen && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-neutral-800 p-4 rounded shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 text-white">How to</h2>
-            <div className="mb-4 overflow-hidden relative h-80">
-              <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${currentPage * 100}%)` }}>
-                {pages.map((page, index) => (
-                  <div key={index} className="w-full flex-shrink-0 flex flex-col items-center">
-                    <img src={page.image} alt={`Page ${index + 1}`} className="w-full h-64 object-cover mb-4 rounded" />
-                    <p className="text-neutral-200">{page.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <button onClick={handlePrevPage} className="text-red-500 hover:underline">이전</button>
-              <div className="flex space-x-1">
-                {pages.map((_, index) => (
-                  <div key={index} className={`h-2 w-2 rounded-full ${index === currentPage ? 'bg-white' : 'bg-gray-500'}`}></div>
-                ))}
-              </div>
-              <button onClick={handleNextPage} className="text-red-500 hover:underline">다음</button>
-            </div>
-            <button onClick={handleCloseClick} className="mt-4 text-red-500 hover:underline">Close</button>
-          </div>
-        </div>
-      )}
 
       <div className="flex h-screen flex-1 pt-[50px] sm:pt-[60px]">
         <Sidebar
