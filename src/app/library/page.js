@@ -88,9 +88,11 @@ export default function Library() {
                     hover:bg-neutral-800
                     ml-auto
                     text-center
-                    flex items-center justify-center`}>
-          마이 페이지
-        </Link>
+                    flex items-center justify-center`}
+          >
+            마이 페이지
+          </Link>
+        </div>
         {/* <RealtimeSearch /> */}
       </div>
 
