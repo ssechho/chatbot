@@ -512,13 +512,13 @@ const Chatbot = () => {
           <Link
             href="/login"
             className={`w-28
-                  p-1 
-                  text-neutral-300
-                  border border-neutral-300 rounded
-                  hover:bg-neutral-800
-                  ml-4
-                  text-center
-                  flex items-center justify-center`}
+            p-1 
+            text-neutral-300
+            border border-neutral-300 rounded
+            hover:bg-neutral-800
+            ml-auto
+            text-center
+            flex items-center justify-center`}
           >
             마이 페이지
           </Link>
