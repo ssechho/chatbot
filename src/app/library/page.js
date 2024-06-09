@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
+import TrendingWords from "@/components/TrendingWords";
 import { db } from "@/firebase";
 import {
   collection,
@@ -15,6 +16,7 @@ export default function Library() {
   const [extractedWords, setExtractedWords] = useState([]);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [trendingWords, setTrendingWords] = useState([]);
 
   useEffect(() => {
     const fetchExtractedWords = async () => {
@@ -53,6 +55,7 @@ export default function Library() {
           <Link href="/library" className="ml-6 text-neutral-200 font-bold text-lg hover:opacity-50">
             Library
           </Link>
+          <TrendingWords trendingWords={trendingWords} />
         </div>
         <Link href="/login" className={`w-28
                     p-1 
@@ -64,7 +67,6 @@ export default function Library() {
                     flex items-center justify-center`}>
           마이 페이지
         </Link>
-        {/* <RealtimeSearch /> */}
       </div>
 
       <div className="p-4">
