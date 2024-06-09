@@ -28,7 +28,30 @@ body {
 }
 
 .profile-image {
-  @apply w-20 h-20 rounded-full mr-2; /* 사용자 정의 크기 */
+  width: 6rem; /* 크기를 동일하게 설정 */
+  height: 6rem; /* 크기를 동일하게 설정 */
+  object-fit: cover; /* 이미지가 요소에 맞게 잘리도록 설정 */
+  clip-path: circle(40%); /* 원형으로 잘라내기 */
+}
+.assistant-message {
+  display: flex;
+  align-items: flex-start; /* 어시스턴트 메시지와 이미지가 위쪽 정렬되도록 설정 */
+  margin-bottom: 10px;
+}
+
+.user-message {
+  display: flex;
+  align-items: flex-start; /* 유저 메시지와 이미지가 위쪽 정렬되도록 설정 */
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.assistant-profile-image {
+  margin-right: 0.5rem; /* 오른쪽 마진 */
+}
+
+.user-profile-image {
+  margin-left: 0.5rem; /* 왼쪽 마진 */
 }
 
 /* Realtime Search Styles */
