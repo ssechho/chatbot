@@ -562,6 +562,9 @@ const Chatbot = () => {
           >
             마이 페이지
           </Link>
+          <button onClick={handleInfoClick} className="ml-auto text-neutral-300">
+          <img src="/images/infoIcon.svg" alt="Info Icon" className="h-6 w-6" />
+        </button>
         </div>
       </div>
 
