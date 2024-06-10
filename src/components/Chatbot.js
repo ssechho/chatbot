@@ -605,56 +605,58 @@ const Chatbot = () => {
           onNewConversation={handleNewConversation}
         />
         <div className="flex-1 flex flex-col bg-neutral-900 shadow">
-          <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
-            <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
-              {personality === null ? (
-                <div className="flex flex-col items-center">
-                  <h2 className="text-2xl mb-12 text-neutral-200">
-                    새로운 주제로 대화를 시작해보세요.
-                  </h2>
-                  <div className="flex space-x-20">
-                    <button
-                      className="btn btn-intellectual h-[400px] w-[300px] flex flex-col items-center justify-center border-4 border-orange-500 hover:border-gradient-to-r from-orange-500 to-yellow-500"
-                      onClick={() => handleSetPersonality("intellectual")}
-                    >
-                      <div className="flex-1 flex items-center justify-center w-full">
-                        <img
-                          src="/images/profile_intellectual/intellectualset.png"
-                          alt="intellectual"
-                          className="object-cover h-full w-full"
-                        />
-                      </div>
-                      <span>안경 척! 모드</span>
-                    </button>
-                    <button
-                      className="btn btn-funny h-[400px] w-[300px] flex flex-col items-center justify-center border-4 border-orange-500 hover:border-gradient-to-r from-orange-500 to-yellow-500"
-                      onClick={() => handleSetPersonality("funny")}
-                    >
-                      <div className="flex-1 flex items-center justify-center w-full">
-                        <img
-                          src="/images/profile_funny/funnyset.png"
-                          alt="funny"
-                          className="object-cover h-full w-full"
-                        />
-                      </div>
-                      <span>주접이 모드</span>
-                    </button>
-                  </div>
+        <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
+          <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
+            {personality === null ? (
+              <div className="flex flex-col items-center">
+                <h2 className="text-2xl mb-12 text-neutral-200">
+                  새로운 주제로 대화를 시작해보세요.
+                </h2>
+                <div className="flex space-x-20">
+                  <button
+                    className="btn btn-intellectual h-[400px] w-[300px] flex flex-col items-center justify-center border-4 border-orange-500 hover:border-gradient-to-r from-orange-500 to-yellow-500"
+                    onClick={() => handleSetPersonality("intellectual")}
+                  >
+                    <div className="flex-1 flex items-center justify-center w-full">
+                      <img
+                        src="/images/profile_intellectual/intellectualset.png"
+                        alt="intellectual"
+                        className="object-cover h-full w-full"
+                      />
+                    </div>
+                    <span>안경 척! 모드</span>
+                  </button>
+                  <button
+                    className="btn btn-funny h-[400px] w-[300px] flex flex-col items-center justify-center border-4 border-orange-500 hover:border-gradient-to-r from-orange-500 to-yellow-500"
+                    onClick={() => handleSetPersonality("funny")}
+                  >
+                    <div className="flex-1 flex items-center justify-center w-full">
+                      <img
+                        src="/images/profile_funny/funnyset.png"
+                        alt="funny"
+                        className="object-cover h-full w-full"
+                      />
+                    </div>
+                    <span>주접이 모드</span>
+                  </button>
                 </div>
-              ) : (
-                <Chat
-                  messages={messages}
-                  messageImages={messageImages}
-                  userImage={userImage} // userImage prop 전달
-                  loading={false} // 챗을 주고받을 때는 로딩 상태를 false로 유지합니다
-                  onSendMessage={handleSend}
-                  mode={personality}
-                />
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+              </div>
+            ) : loading ? (
+              <ChatLoader />
+            ) : (
+              <Chat
+                messages={messages}
+                messageImages={messageImages}
+                userImage={userImage} // userImage prop 전달
+                loading={loading}
+                onSendMessage={handleSend}
+                mode={personality}
+              />
+            )}
+            <div ref={messagesEndRef} />
           </div>
         </div>
+      </div>
       </div>
     </>
   );
