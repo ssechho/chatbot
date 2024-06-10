@@ -491,11 +491,11 @@ const Chatbot = () => {
   };
 
   const handleNextPage = () => {
-    setCurrentPage((prevPage) => (prevPage + 1) % 4);
+    setCurrentPage((prevPage) => (prevPage + 1) % 6);
   };
 
   const handlePrevPage = () => {
-    setCurrentPage((prevPage) => (prevPage - 1 + 4) % 4);
+    setCurrentPage((prevPage) => (prevPage - 1 + 6) % 6);
   };
 
   const pages = [
@@ -509,10 +509,18 @@ const Chatbot = () => {
     },
     {
       image: "/images/page3.png",
-      text: "Library에서는 언급했던 영화를 다시 꺼내볼 수 있습니다."
+      text: "자유로운 영화 추천, 토론, 덕질 주접이 가능합니다."
     },
     {
       image: "/images/page4.png",
+      text: "사이드바에서 언제든지 과거 대화를 불러오고 이어가세요."
+    },
+    {
+      image: "/images/page5.png",
+      text: "Library에서는 언급했던 영화를 다시 꺼내볼 수 있어요."
+    },
+    {
+      image: "/images/page6.png",
       text: "인기있는 영화가 궁금하다면, Now Hot을 살펴보세요!"
     }
   ];
@@ -570,33 +578,35 @@ const Chatbot = () => {
       </div>
 
       {/* 인포메이션 팝업 */}
-      {isInfoOpen && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-neutral-800 p-4 rounded shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 text-white">How to</h2>
-            <div className="mb-4 overflow-hidden relative h-80">
-              <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${currentPage * 100}%)` }}>
-                {pages.map((page, index) => (
-                  <div key={index} className="w-full flex-shrink-0 flex flex-col items-center">
-                    <img src={page.image} alt={`Page ${index + 1}`} className="w-full h-64 object-cover mb-4 rounded" />
-                    <p className="text-neutral-200">{page.text}</p>
-                  </div>
-                ))}
+        {isInfoOpen && (
+          <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-neutral-800 p-4 rounded shadow-lg w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-white">How to</h2>
+                <button onClick={handleCloseClick} className="text-red-500 hover:underline">Close</button>
+              </div>
+              <div className="mb-4 overflow-hidden relative h-80">
+                <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${currentPage * 100}%)` }}>
+                  {pages.map((page, index) => (
+                    <div key={index} className="w-full flex-shrink-0 flex flex-col items-center">
+                      <img src={page.image} alt={`Page ${index + 1}`} className="w-full h-64 object-cover mb-4 rounded" />
+                      <p className="text-neutral-200">{page.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <button onClick={handlePrevPage} className="text-red-500 hover:underline">이전</button>
+                <div className="flex space-x-1">
+                  {pages.map((_, index) => (
+                    <div key={index} className={`h-2 w-2 rounded-full ${index === currentPage ? 'bg-white' : 'bg-gray-500'}`}></div>
+                  ))}
+                </div>
+                <button onClick={handleNextPage} className="text-red-500 hover:underline">다음</button>
               </div>
             </div>
-            <div className="flex justify-between items-center">
-              <button onClick={handlePrevPage} className="text-blue-500 hover:underline">Previous</button>
-              <div className="flex space-x-1">
-                {pages.map((_, index) => (
-                  <div key={index} className={`h-2 w-2 rounded-full ${index === currentPage ? 'bg-white' : 'bg-gray-500'}`}></div>
-                ))}
-              </div>
-              <button onClick={handleNextPage} className="text-blue-500 hover:underline">Next</button>
-            </div>
-            <button onClick={handleCloseClick} className="mt-4 text-red-500 hover:underline">Close</button>
           </div>
-        </div>
-      )}
+        )}
 
       <div className="flex h-screen flex-1 pt-[50px] sm:pt-[60px]">
         <Sidebar
