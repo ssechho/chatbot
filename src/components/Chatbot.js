@@ -571,7 +571,7 @@ const Chatbot = () => {
           >
             마이 페이지
           </Link>
-          <button onClick={handleInfoClick} className="ml-auto text-neutral-300">
+          <button onClick={handleInfoClick} className="ml-auto text-neutral-300 ml-8">
           <img src="/images/infoIcon.svg" alt="Info Icon" className="h-6 w-6" />
         </button>
         </div>
@@ -585,11 +585,11 @@ const Chatbot = () => {
                 <h2 className="text-xl font-bold text-white">How to</h2>
                 <button onClick={handleCloseClick} className="text-red-500 hover:underline">Close</button>
               </div>
-              <div className="mb-4 overflow-hidden relative h-80">
+              <div className="mb-4 overflow-hidden relative h-80 flex items-center justify-center">
                 <div className="flex transition-transform duration-500" style={{ transform: `translateX(-${currentPage * 100}%)` }}>
                   {pages.map((page, index) => (
                     <div key={index} className="w-full flex-shrink-0 flex flex-col items-center">
-                      <img src={page.image} alt={`Page ${index + 1}`} className="w-full h-64 object-cover mb-4 rounded" />
+                      <img src={page.image} alt={`Page ${index + 1}`} className="w-40 h-40 object-cover mb-12 rounded" />
                       <p className="text-neutral-200">{page.text}</p>
                     </div>
                   ))}
