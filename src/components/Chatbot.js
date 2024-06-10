@@ -477,6 +477,7 @@ const Chatbot = () => {
     }
   }, [messages, messageImages]);
 
+
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -646,7 +647,7 @@ const Chatbot = () => {
                   messages={messages}
                   messageImages={messageImages}
                   userImage={userImage} // userImage prop 전달
-                  loading={false} // 챗을 주고받을 때는 로딩 상태를 false로 유지합니다
+                  loading={loading} 
                   onSendMessage={handleSend}
                   mode={personality}
                 />
