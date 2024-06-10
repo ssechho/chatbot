@@ -15,7 +15,9 @@ const Sidebar = ({
   const handleSelectConversation = (conversationId) => {
     setLoading(true);
     onSelectConversation(conversationId).then(() => {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000); // 1초 동안 로딩 상태 유지
     });
   };
 
