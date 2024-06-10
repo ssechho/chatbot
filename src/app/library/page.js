@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { db } from "@/firebase";
 import { collection, getDocs, where, query } from "firebase/firestore";
+import TrendingWords from "@/components/TrendingWords";
 
 export default function Library() {
   const [extractedWords, setExtractedWords] = useState([]);
@@ -67,6 +68,7 @@ export default function Library() {
           >
             Library
           </Link>
+          <TrendingWords trendingWords={trendingWords} />
         </div>
         <div className="flex items-center ml-auto">
           {userImage && (
@@ -90,7 +92,6 @@ export default function Library() {
             마이 페이지
           </Link>
         </div>
-        {/* <RealtimeSearch /> */}
       </div>
 
       <div className="p-4">
