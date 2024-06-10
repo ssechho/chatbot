@@ -325,39 +325,82 @@ const Chatbot = () => {
     setMessageImages([]);
   };
 
-  const handleSelectConversation = async (conversationId) => {
+  useEffect(() => {
+    console.log("Messages state updated:", messages);
+  }, [messages]);
+
+  useEffect(() => {
+    console.log("MessageImages state updated:", messageImages);
+  }, [messageImages]);
+
+  useEffect(() => {
+    console.log("Personality state updated:", personality);
+  }, [personality]);
+
+  useEffect(() => {
+    console.log("DefaultProfileImages state updated:", defaultProfileImages);
+  }, [defaultProfileImages]);
+
+  const handleSelectConversation = async (conversationId, retryCount = 0) => {
     setLoading(true);
     setCurrentConversation(conversationId);
 
-    const conversationRef = doc(db, "conversations", conversationId);
-    const conversationDoc = await getDoc(conversationRef);
+    try {
+      const conversationRef = doc(db, "conversations", conversationId);
+      const conversationDoc = await getDoc(conversationRef);
 
-    if (conversationDoc.exists()) {
-      const conversationData = conversationDoc.data();
-      const messagesData = conversationData.messages || [];
-      const messageImagesData = conversationData.messageImages || [];
-      const mode = conversationData.mode;
+      if (conversationDoc.exists()) {
+        const conversationData = conversationDoc.data();
+        const messagesData = conversationData.messages || [];
+        const messageImagesData = conversationData.messageImages || [];
+        const mode = conversationData.mode;
 
-      setMessages(messagesData);
-      setMessageImages(messageImagesData);
-      setPersonality(mode);
-      setDefaultProfileImages((prev) => ({
-        ...prev,
-        [mode]: {
-          gender:
-            messageImagesData[0] && messageImagesData[0].includes("boy")
-              ? "boy"
-              : "girl",
-          profile:
-            messageImagesData[0] && messageImagesData[0].includes("boy")
-              ? "boy"
-              : "girl",
-        },
-      }));
+        // 데이터가 올바르게 가져와지는지 확인
+        console.log("Fetched conversation data:", conversationData);
+
+        setTimeout(() => {
+          setMessages((prevMessages) => {
+            if (prevMessages !== messagesData) {
+              console.log("Updating messages state");
+              return messagesData;
+            }
+            return prevMessages;
+          });
+
+          setMessageImages((prevImages) => {
+            if (prevImages !== messageImagesData) {
+              console.log("Updating messageImages state");
+              return messageImagesData;
+            }
+            return prevImages;
+          });
+
+          setPersonality(mode);
+          setDefaultProfileImages((prev) => {
+            const newProfileImages = {
+              ...prev,
+              [mode]: {
+                gender:
+                  messageImagesData[0] && messageImagesData[0].includes("boy")
+                    ? "boy"
+                    : "girl",
+                profile:
+                  messageImagesData[0] && messageImagesData[0].includes("boy")
+                    ? "boy"
+                    : "girl",
+              },
+            };
+            return newProfileImages;
+          });
+          setLoading(false);
+        }, 100);
+      } 
+    } catch (error) {
+      setLoading(false);
+      // 추가적인 에러 처리 로직을 여기에 작성할 수 있습니다.
     }
-
-    setLoading(false);
   };
+
 
   const handleSetPersonality = async (selectedPersonality) => {
     setPersonality(selectedPersonality);

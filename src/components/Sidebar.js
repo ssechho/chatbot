@@ -12,13 +12,10 @@ const Sidebar = ({
     localStorage.setItem("conversations", JSON.stringify(conversations));
   }, [conversations]);
 
-  const handleSelectConversation = (conversationId) => {
+  const handleSelectConversation = async (conversationId) => {
     setLoading(true);
-    onSelectConversation(conversationId).then(() => {
-      setTimeout(() => {
-        setLoading(false);
-      }, 5000); // 로딩 상태 유지
-    });
+    await onSelectConversation(conversationId);
+    setLoading(false);
   };
 
   return (
