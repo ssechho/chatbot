@@ -8,7 +8,7 @@ import { collection, getDocs, where, query } from 'firebase/firestore';
 import TrendingWords from '@/components/TrendingWords';
 
 const API_KEY = process.env.NEXT_PUBLIC_KOBIS_API_KEY;
-const HOST = 'http://www.kobis.or.kr';
+const HOST = 'https://www.kobis.or.kr';
 
 const getMovieList = async (params) => {
   const url = new URL(`${HOST}/kobisopenapi/webservice/rest/movie/searchMovieList.json`);
