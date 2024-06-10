@@ -63,8 +63,10 @@ const Chatbot = () => {
 
   useEffect(() => {
     if (session) {
+      loadConversations();
+      // 카카오 프로필 이미지 설정
       if (session.user.image) {
-        setUserImage(session.user.image.replace('http://', 'https://')); // 사용자 이미지 URL을 HTTPS로 변경
+        setUserImage(session.user.image);
       }
     }
   }, [session]);
