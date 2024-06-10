@@ -1,7 +1,9 @@
+// src/components/Sidebar.js
+
 import React, { useEffect, useState } from "react";
 
 const Sidebar = ({
-  conversations,
+  conversations = [], // 기본값을 빈 배열로 설정
   onSelectConversation,
   onDeleteConversation,
   onNewConversation,
@@ -32,24 +34,32 @@ const Sidebar = ({
       </button>
       <div className="flex-1 overflow-y-auto">
         <ul>
-          {conversations.map((conversation, index) => (
-            <li
-              key={index}
-              className="p-2 mb-2 ml-4 flex justify-between items-center cursor-pointer hover:bg-neutral-900"
-              onClick={() => handleSelectConversation(conversation.id)} // ID를 전달
-            >
-              <span className="text-white">{conversation.title}</span>
-              <button
-                className="text-red-500 ml-2 w-6 h-6 flex justify-center items-center"
-                onClick={(e) => {
-                  e.stopPropagation(); // 클릭 이벤트가 상위 요소로 전파되지 않도록 함
-                  onDeleteConversation(conversation.id);
-                }}
+          {conversations.length > 0 ? (
+            conversations.map((conversation, index) => (
+              <li
+                key={index}
+                className="p-2 mb-2 ml-4 flex justify-between items-center cursor-pointer hover:bg-neutral-900"
+                onClick={() => handleSelectConversation(conversation.id)} // ID를 전달
               >
-                <img src="/images/deleteIcon.svg" alt="Delete" className="w-4 h-4" />
-              </button>
-            </li>
-          ))}
+                <span className="text-white">{conversation.title}</span>
+                <button
+                  className="text-red-500 ml-2 w-6 h-6 flex justify-center items-center"
+                  onClick={(e) => {
+                    e.stopPropagation(); // 클릭 이벤트가 상위 요소로 전파되지 않도록 함
+                    onDeleteConversation(conversation.id);
+                  }}
+                >
+                  <img
+                    src="/images/deleteIcon.svg"
+                    alt="Delete"
+                    className="w-4 h-4"
+                  />
+                </button>
+              </li>
+            ))
+          ) : (
+            <p className="text-neutral-400 ml-4">No conversations found.</p>
+          )}
         </ul>
         {loading && (
           <div className="flex justify-center items-center h-full">

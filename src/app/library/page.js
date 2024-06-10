@@ -8,17 +8,15 @@ import { collection, getDocs, where, query } from "firebase/firestore";
 
 export default function Library() {
   const [extractedWords, setExtractedWords] = useState([]);
-  const [userImage, setUserImage] = useState(""); // 사용자 이미지 상태 추가
+  const [userImage, setUserImage] = useState("");
   const router = useRouter();
   const { data: session, status } = useSession();
 
   useEffect(() => {
     const fetchExtractedWords = async () => {
-      // 세션 로딩 중이거나 세션이 없는 경우 데이터를 가져오지 않도록 처리합니다.
       if (status === "loading" || !session?.user?.name) return;
 
       try {
-        // Firestore 쿼리 설정
         const extractedWordsRef = collection(db, "extractedWords");
         const q = query(
           extractedWordsRef,
@@ -37,19 +35,21 @@ export default function Library() {
     };
 
     fetchExtractedWords();
-  }, [session, status]); // 세션 및 상태 변경 시에만 useEffect가 호출되도록 합니다.
+  }, [session, status]);
 
   useEffect(() => {
     if (session) {
-      // 카카오 프로필 이미지 설정
       if (session.user.image) {
         setUserImage(session.user.image);
       }
     }
   }, [session]);
 
-  // 세션 로딩 중일 때는 로딩 스피너를 표시하거나 아무 것도 렌더링하지 않습니다.
   if (status === "loading") return null;
+
+  const handleConversationClick = (conversationId) => {
+    router.push(`/conversation/${conversationId}`);
+  };
 
   return (
     <>
@@ -73,7 +73,7 @@ export default function Library() {
             <img
               src={userImage}
               alt="User profile"
-              className="w-8 h-8 rounded-full mr-2" // 적절한 크기로 설정
+              className="w-8 h-8 rounded-full mr-2"
             />
           )}
           <Link
@@ -90,7 +90,6 @@ export default function Library() {
             마이 페이지
           </Link>
         </div>
-        {/* <RealtimeSearch /> */}
       </div>
 
       <div className="p-4">
@@ -101,13 +100,13 @@ export default function Library() {
               <h2 className="text-lg text-neutral-300">{item.word}</h2>
               <div>
                 {item.conversationId.map((conversationId) => (
-                  <Link
+                  <button
                     key={conversationId}
-                    href={`/?conversationID=${conversationId}`}
+                    onClick={() => handleConversationClick(conversationId)}
                     className="text-red-500 hover:underline block"
                   >
                     언급된 대화
-                  </Link>
+                  </button>
                 ))}
               </div>
             </div>
