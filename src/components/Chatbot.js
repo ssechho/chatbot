@@ -457,19 +457,19 @@ const Chatbot = () => {
   const pages = [
     {
       image: "/images/page1.png",
-      text: "This is the content of page 1."
+      text: "안녕하세요! 영화 덕질 친구 CHATFLIX입니다."
     },
     {
       image: "/images/page2.png",
-      text: "This is the content of page 2."
+      text: "두 가지 성격 중 하나를 골라 대화를 시작해보세요."
     },
     {
       image: "/images/page3.png",
-      text: "This is the content of page 3."
+      text: "Library에서는 언급했던 영화를 다시 꺼내볼 수 있습니다."
     },
     {
       image: "/images/page4.png",
-      text: "This is the content of page 4."
+      text: "인기있는 영화가 궁금하다면, Now Hot을 살펴보세요!"
     }
   ];
 
