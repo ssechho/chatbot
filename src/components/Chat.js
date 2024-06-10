@@ -1,11 +1,9 @@
-// src/components/Chat.js
-
 import React from "react";
 import { ChatInput } from "./ChatInput";
 import { ChatLoader } from "./ChatLoader";
 import { ChatBubble } from "./ChatBubble";
 
-const Chat = ({
+export const Chat = ({
   messages,
   messageImages = [],
   userImage,
@@ -50,5 +48,3 @@ const Chat = ({
     </div>
   );
 };
-
-export default Chat;
