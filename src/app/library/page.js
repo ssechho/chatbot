@@ -112,7 +112,7 @@ export default function Library() {
   useEffect(() => {
     if (session) {
       if (session.user.image) {
-        setUserImage(session.user.image);
+        setUserImage(session.user.image.replace('http://', 'https://')); // 사용자 이미지 URL을 HTTPS로 변경
       }
     }
   }, [session]);
