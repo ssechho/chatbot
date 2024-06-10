@@ -6,9 +6,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "CHATFLIX",
   description: "당신의 영화 덕질메이트, 챗플릭스",
-  icons: {
-    icon: "/chatflix2.ico"
-  },
 };
 
 export default function RootLayout({ children }) {
