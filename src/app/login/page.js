@@ -15,7 +15,7 @@ export default function Login() {
             <img
               src={session.user.picture} // 프로필 사진을 여기서 사용
               alt="Profile"
-              className="w-40 h-40 rounded-full mb-8"
+              className="w-40 h-40 rounded-full object-cover mb-8"
             />
             <div className="text-2xl mb-12 text-neutral-300">
               안녕하세요 {session.user.name}님!

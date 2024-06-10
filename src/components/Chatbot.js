@@ -598,7 +598,7 @@ const Chatbot = () => {
             <img
               src={userImage}
               alt="User profile"
-              className="w-8 h-8 rounded-full mr-2" // 적절한 크기로 설정
+              className="w-8 h-8 rounded-full object-cover mr-2" // 적절한 크기로 설정
             />
           )}
           <Link

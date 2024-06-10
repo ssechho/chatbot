@@ -158,7 +158,7 @@ export default function NowHot() {
         <img
           src={userImage}
           alt="User profile"
-          className="w-8 h-8 rounded-full mr-2"
+          className="w-8 h-8 rounded-full object-cover mr-2"
         />
       )}
       <Link
