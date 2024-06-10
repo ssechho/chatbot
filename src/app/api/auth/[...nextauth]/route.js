@@ -10,6 +10,19 @@ const handler = NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   debug: true,
+  callbacks: {
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
+        token.accessToken = account.access_token;
+        token.picture = profile.properties.profile_image;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user.picture = token.picture;
+      return session;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
