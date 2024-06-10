@@ -11,6 +11,7 @@ export default function Library() {
   const [extractedWords, setExtractedWords] = useState([]);
   const [userImage, setUserImage] = useState(""); // 사용자 이미지 상태 추가
   const router = useRouter();
+  const [trendingWords, setTrendingWords] = useState([]);
   const { data: session, status } = useSession();
 
   useEffect(() => {
