@@ -393,7 +393,7 @@ const Chatbot = () => {
             return newProfileImages;
           });
           setLoading(false);
-        }, 100);
+        }, 300);
       } 
     } catch (error) {
       setLoading(false);
