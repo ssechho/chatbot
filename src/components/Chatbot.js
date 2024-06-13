@@ -6,6 +6,7 @@ import TrendingWords from "@/components/TrendingWords";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import { db } from "@/firebase";
 import {
@@ -41,6 +42,8 @@ const generateRandomUsername = () => {
 };
 
 const Chatbot = () => {
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get('conversationId'); 
   const router = useRouter();
   const [messages, setMessages] = useState([]);
   const [messageImages, setMessageImages] = useState([]);
@@ -85,6 +88,13 @@ const Chatbot = () => {
       setConversations(loadedConversations);
     }
   };
+
+  useEffect(() => {
+    console.log('conversationId changed:', conversationId); // Debugging line
+    if (conversationId) {
+      handleSelectConversation(conversationId);
+    }
+  }, [conversationId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -152,16 +162,6 @@ const Chatbot = () => {
         second: "2-digit",
       });
     }
-  };
-
-  const extractWordsFromMessage = (message) => {
-    const regex = /<(.*?)>/g; // <> 사이의 내용을 추출하는 정규식
-    const matches = [];
-    let match;
-    while ((match = regex.exec(message)) !== null) {
-      matches.push(match[1]);
-    }
-    return matches;
   };
 
   const handleSend = async (message) => {
@@ -341,65 +341,50 @@ const Chatbot = () => {
     console.log("DefaultProfileImages state updated:", defaultProfileImages);
   }, [defaultProfileImages]);
 
-  const handleSelectConversation = async (conversationId, retryCount = 0) => {
+  
+  const handleSelectConversation = async (conversationId) => {
     setLoading(true);
     setCurrentConversation(conversationId);
-
+  
     try {
-      const conversationRef = doc(db, "conversations", conversationId);
+      console.log('Fetching conversation:', conversationId); // Debugging line
+      const conversationRef = doc(db, 'conversations', conversationId);
       const conversationDoc = await getDoc(conversationRef);
-
+  
       if (conversationDoc.exists()) {
         const conversationData = conversationDoc.data();
         const messagesData = conversationData.messages || [];
         const messageImagesData = conversationData.messageImages || [];
         const mode = conversationData.mode;
-
-        // 데이터가 올바르게 가져와지는지 확인
-        console.log("Fetched conversation data:", conversationData);
-
-        setTimeout(() => {
-          setMessages((prevMessages) => {
-            if (prevMessages !== messagesData) {
-              console.log("Updating messages state");
-              return messagesData;
-            }
-            return prevMessages;
-          });
-
-          setMessageImages((prevImages) => {
-            if (prevImages !== messageImagesData) {
-              console.log("Updating messageImages state");
-              return messageImagesData;
-            }
-            return prevImages;
-          });
-
-          setPersonality(mode);
-          setDefaultProfileImages((prev) => {
-            const newProfileImages = {
-              ...prev,
-              [mode]: {
-                gender:
-                  messageImagesData[0] && messageImagesData[0].includes("boy")
-                    ? "boy"
-                    : "girl",
-                profile:
-                  messageImagesData[0] && messageImagesData[0].includes("boy")
-                    ? "boy"
-                    : "girl",
-              },
-            };
-            return newProfileImages;
-          });
-          setLoading(false);
-        }, 300);
-      } 
+  
+        console.log('Conversation data:', conversationData); // Debugging line
+  
+        setMessages(messagesData);
+        setMessageImages(messageImagesData);
+        setPersonality(mode);
+        setDefaultProfileImages((prev) => ({
+          ...prev,
+          [mode]: {
+            gender:
+              messageImagesData[0] && messageImagesData[0].includes('boy')
+                ? 'boy'
+                : 'girl',
+            profile:
+              messageImagesData[0] && messageImagesData[0].includes('boy')
+                ? 'boy'
+                : 'girl',
+          },
+        }));
+      } else {
+        console.log('No such document!');
+      }
     } catch (error) {
+      console.error('Error getting document:', error);
+    } finally {
       setLoading(false);
-      // 추가적인 에러 처리 로직을 여기에 작성할 수 있습니다.
     }
   };
+  
 
 
   const handleSetPersonality = async (selectedPersonality) => {
@@ -504,10 +489,6 @@ const Chatbot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  useEffect(() => {
-    handleReset();
-  }, [personality]);
 
   useEffect(() => {
     if (currentConversation !== null) {
